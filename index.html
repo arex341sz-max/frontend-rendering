@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ── تمام استایل‌های شما (همان‌هایی که قبلاً داشتید، بدون تغییر) ── */
+    /* ── تمام استایل‌های شما (همان‌هایی که قبلاً داشتید) ── */
     :root {
       --t: .35s cubic-bezier(.4,0,.2,1);
       --r-sm: 8px; --r-md: 14px; --r-lg: 20px;
@@ -205,17 +205,17 @@
     <div class="stress-pct" id="stressPct">0%</div>
   </div>
 
-  <!-- اتصال به بک‌اند -->
+  <!-- ─── اتصال به بک‌اند ─── -->
   <div class="card">
     <div class="card-header"><div class="card-title"><span class="chip">🔗</span>اتصال به بک‌اند</div></div>
     <div class="input-group">
-      <input type="text" id="backendUrl" placeholder="آدرس بک‌اند (مثلاً http://localhost:8080)" value="http://localhost:8080"/>
+      <input type="text" id="backendUrl" placeholder="آدرس بک‌اند (مثلاً https://...app.github.dev)" value="http://localhost:8080"/>
       <button class="btn btn-primary" onclick="connectBackend()">🔌 اتصال</button>
     </div>
     <div class="hint" id="connectionStatus">در انتظار اتصال…</div>
   </div>
 
-  <!-- کنترل ماینر -->
+  <!-- ─── کنترل ماینر ─── -->
   <div class="card">
     <div class="card-header"><div class="card-title"><span class="chip">⚙️</span>کنترل ماینر</div></div>
     <div class="input-group"><input type="text" id="walletInput" placeholder="آدرس کیف پول" value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto"/></div>
@@ -224,7 +224,7 @@
     <div class="hint" id="statusMsg"></div>
   </div>
 
-  <!-- متریک‌ها -->
+  <!-- ─── متریک‌ها ─── -->
   <div class="metrics">
     <div class="metric"><div class="metric-label">⚡ هش‌ریت</div><div class="metric-value"><span class="hashrate-shimmer" id="hashrate">--</span><span class="unit"> H/s</span></div></div>
     <div class="metric"><div class="metric-label">✅ پذیرفته</div><div class="metric-value" id="accepted">--</div></div>
@@ -235,7 +235,7 @@
     <div class="metric ram-metric" id="ramMetric"><div class="metric-label">💾 RAM</div><div class="metric-value" id="ramUsage">--%</div><div class="bar-track"><div class="bar-fill ram" id="ramFill" style="width:0%"></div></div><div class="bar-sub" id="ramDetail"></div></div>
   </div>
 
-  <!-- نوار اطلاعات -->
+  <!-- ─── نوار اطلاعات ─── -->
   <div class="info-strip">
     <div class="info-item">🔑 کیف پول: <b id="walletDisplay">--</b></div>
     <div class="info-item">🌐 استخر: <b id="serverDisplay">--</b></div>
@@ -243,10 +243,10 @@
     <div class="info-item">⚡ هسته: <b id="threadsDisplay">2</b></div>
   </div>
 
-  <!-- نمودار -->
+  <!-- ─── نمودار ─── -->
   <div class="card"><div class="card-header"><div class="card-title"><span class="chip">📈</span>نمودار هش‌ریت</div></div><div class="chart-wrap"><canvas id="hashrateChart"></canvas></div></div>
 
-  <!-- لاگ‌ها -->
+  <!-- ─── لاگ‌ها ─── -->
   <div class="card"><div class="card-header"><div class="card-title"><span class="chip">📋</span>لاگ‌ها</div><button class="btn btn-ghost" style="padding:4px 10px;font-size:10px" onclick="clearLogs()">پاک کردن</button></div><div class="log-box" id="logContainer"><div class="log-empty">⏳ در انتظار اتصال…</div></div></div>
 
   <footer class="footer">⚡ Full Power Mode · Heavy · <span id="liveStatus">در انتظار اتصال</span></footer>
@@ -269,54 +269,39 @@ const savedTheme = localStorage.getItem('fpm-theme') || (window.matchMedia('(pre
 setTheme(savedTheme);
 
 /* ═══════════════════════════════════════════════
-   موتور استرس (Stress Engine) — بر اساس داده‌های واقعی
+   موتور استرس — بر اساس داده‌های واقعی از بک‌اند
 ═══════════════════════════════════════════════ */
 const STATES = ['idle', 'warm', 'hot', 'critical', 'overload'];
 const THRESHOLDS = [0, 40, 65, 80, 93];
 const LABELS = ['IDLE', 'WARM', 'HOT', 'CRITICAL', 'OVERLOAD'];
 let _currentStress = 'idle';
-let _cpu = 0, _ram = 0;
-
-function getStressLevel(cpu, ram) {
-  const combined = cpu * 0.65 + ram * 0.35;
-  for (let i = THRESHOLDS.length - 1; i >= 0; i--) {
-    if (combined >= THRESHOLDS[i]) return i;
-  }
-  return 0;
-}
 
 function applyStress(cpu, ram) {
-  _cpu = cpu; _ram = ram;
-  const idx = getStressLevel(cpu, ram);
-  const state = STATES[idx];
   const combined = Math.round(cpu * 0.65 + ram * 0.35);
-
+  let idx = 0;
+  for (let i = THRESHOLDS.length - 1; i >= 0; i--) {
+    if (combined >= THRESHOLDS[i]) { idx = i; break; }
+  }
+  const state = STATES[idx];
   if (state !== _currentStress) {
     _currentStress = state;
     html.setAttribute('data-stress', state);
     document.getElementById('stressLabel').textContent = LABELS[idx];
   }
-
   const segs = document.querySelectorAll('.seg');
   const litCount = Math.round(combined / 10);
   segs.forEach((s, i) => s.classList.toggle('lit', i < litCount));
   document.getElementById('stressPct').textContent = combined + '%';
-
   document.getElementById('cpuMetric').setAttribute('data-level', cpu > 70 ? 'high' : 'normal');
   document.getElementById('ramMetric').setAttribute('data-level', ram > 70 ? 'high' : 'normal');
-
   document.getElementById('cpuUsage').textContent = cpu + '%';
   document.getElementById('ramUsage').textContent = ram + '%';
   document.getElementById('cpuFill').style.width = cpu + '%';
   document.getElementById('ramFill').style.width = ram + '%';
 
-  updateParticles(idx);
-  if (window._chart) updateChartColors();
-}
-
-function updateParticles(stressIdx) {
+  // ذرات overload
   const container = document.getElementById('particles');
-  if (stressIdx < 4) { container.innerHTML = ''; return; }
+  if (idx < 4) { container.innerHTML = ''; return; }
   if (container.children.length > 0) return;
   for (let i = 0; i < 22; i++) {
     const p = document.createElement('div');
@@ -330,7 +315,6 @@ function updateParticles(stressIdx) {
    نمودار (Chart)
 ═══════════════════════════════════════════════ */
 const ACCENT_MAP = { idle: '#3b82f6', warm: '#06b6d4', hot: '#f59e0b', critical: '#f97316', overload: '#ef4444' };
-
 function chartColors() {
   const a = ACCENT_MAP[_currentStress] || '#3b82f6';
   const dark = html.getAttribute('data-theme') === 'dark';
@@ -341,7 +325,6 @@ function chartColors() {
     text: dark ? '#3d5478' : '#7090b8',
   };
 }
-
 let _chart;
 function initChart() {
   const c = chartColors();
@@ -359,10 +342,10 @@ function initChart() {
   window._chart = _chart;
 }
 function updateChartColors() {
+  if (!_chart) return;
   const c = chartColors();
-  const ds = _chart.data.datasets[0];
-  ds.borderColor = c.line;
-  ds.backgroundColor = c.fill;
+  _chart.data.datasets[0].borderColor = c.line;
+  _chart.data.datasets[0].backgroundColor = c.fill;
   _chart.options.scales.x.grid.color = c.grid;
   _chart.options.scales.x.ticks.color = c.text;
   _chart.options.scales.y.grid.color = c.grid;
@@ -372,7 +355,7 @@ function updateChartColors() {
 document.addEventListener('DOMContentLoaded', initChart);
 
 /* ═══════════════════════════════════════════════
-   عملکرد واقعی (Backend)
+   عملکرد واقعی — اتصال به بک‌اند
 ═══════════════════════════════════════════════ */
 let backendUrl = '';
 let isConnected = false;
@@ -412,6 +395,8 @@ function connectBackend() {
     return;
   }
   backendUrl = url.replace(/\/+$/, '');
+  // ذخیره در localStorage
+  localStorage.setItem('backendUrl', backendUrl);
   testConnection();
 }
 
@@ -512,7 +497,6 @@ function updateMetrics(data) {
     el.liveStatus.textContent = '⏹ غیرفعال';
   }
 }
-
 function formatUptime(s) {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
   return (h ? h + 'h ' : '') + (m ? m + 'm ' : '') + sec + 's';
@@ -613,16 +597,17 @@ async function fetchSystemStats() {
 }
 
 function showStatus(msg, type = 'info') {
-  const el = el.statusMsg;
-  if (!el) return;
-  el.textContent = msg;
-  el.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
+  const statusEl = document.getElementById('statusMsg');
+  if (!statusEl) return;
+  statusEl.textContent = msg;
+  statusEl.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
 }
+
 function showConnectionStatus(msg, type = 'info') {
-  const el = el.connectionStatus;
-  if (!el) return;
-  el.textContent = msg;
-  el.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
+  const connEl = document.getElementById('connectionStatus');
+  if (!connEl) return;
+  connEl.textContent = msg;
+  connEl.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
 }
 
 async function refreshAll() {
@@ -633,9 +618,9 @@ async function refreshAll() {
 
 /* ── مقداردهی ── */
 document.addEventListener('DOMContentLoaded', function() {
-  const savedBackend = localStorage.getItem('backendUrl');
-  if (savedBackend) {
-    el.backendUrlInput.value = savedBackend;
+  const saved = localStorage.getItem('backendUrl');
+  if (saved) {
+    el.backendUrlInput.value = saved;
     setTimeout(connectBackend, 500);
   }
   el.backendUrlInput?.addEventListener('change', function() {
@@ -643,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-/* ── expose to HTML ── */
+// expose functions to HTML
 window.connectBackend = connectBackend;
 window.startMiner = startMiner;
 window.stopMiner = stopMiner;
@@ -651,8 +636,8 @@ window.refreshAll = refreshAll;
 window.clearLogs = clearLogs;
 window.toggleTheme = toggleTheme;
 
-// لاگ‌های اولیه
-setTimeout(() => addLog('info', 'سیستم آماده است. برای اتصال، آدرس بک‌اند را وارد کنید.'), 300);
+// لاگ اولیه
+setTimeout(() => addLog('info', 'سیستم آماده است. آدرس بک‌اند را وارد کرده و اتصال را بزنید.'), 300);
 </script>
 </body>
 </html>
