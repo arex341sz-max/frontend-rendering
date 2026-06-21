@@ -3,116 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⛏️ Monero Mining Dashboard</title>
+    <title>⚡ Full Power Mining</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛏️</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-title">
-                <div class="icon">⛏️</div>
-                <div>
-                    <h1>Monero Mining Dashboard</h1>
-                    <span class="subtitle">Stealth Mode · v2.0</span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <span class="status-badge offline" id="statusBadge">
-                    <span class="dot" id="statusDot"></span>
-                    <span id="statusText">غیرفعال</span>
-                </span>
-                <button class="btn btn-refresh" id="btnRefresh" onclick="refreshAll()">⟳</button>
-            </div>
-        </header>
-
-        <!-- Connection Settings -->
-        <div class="card">
-            <div class="card-title">🔗 تنظیمات اتصال به بک‌اند</div>
-            <div class="input-group" style="margin-bottom:10px;">
-                <input type="text" id="backendUrl" placeholder="آدرس بک‌اند (مثلاً http://localhost:8080)" 
-                       value="http://localhost:8080">
-                <button class="btn btn-start" onclick="connectBackend()">🔌 اتصال</button>
-            </div>
-            <div id="connectionStatus" style="font-size:12px;color:var(--text-muted);"></div>
+<div class="container">
+    <header class="header">
+        <div class="header-title"><span class="icon">⚡</span><h1>Full Power Mining</h1><span class="subtitle">Heavy Mode · 2 Threads</span></div>
+        <div class="header-actions">
+            <span class="status-badge offline" id="statusBadge"><span class="dot" id="statusDot"></span><span id="statusText">غیرفعال</span></span>
+            <button class="btn btn-refresh" onclick="refreshAll()">⟳</button>
         </div>
+    </header>
 
-        <!-- Control Panel -->
-        <div class="card">
-            <div class="card-title">⚙️ کنترل ماینر</div>
-            <div class="input-group" style="margin-bottom:10px;">
-                <input type="text" id="walletInput" placeholder="آدرس کیف پول" 
-                       value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto">
-            </div>
-            <div class="input-group" style="margin-bottom:10px;">
-                <input type="text" id="serverInput" placeholder="استخر" value="pool.supportxmr.com">
-                <input type="number" id="portInput" placeholder="پورت" value="443">
-            </div>
-            <div class="input-group">
-                <button class="btn btn-start" id="btnStart" onclick="startMiner()">▶ شروع</button>
-                <button class="btn btn-stop" id="btnStop" onclick="stopMiner()">⏹ توقف</button>
-            </div>
-            <div id="statusMsg" style="margin-top:8px;font-size:12px;min-height:20px;color:var(--text-muted);"></div>
-        </div>
+    <div class="card">
+        <div class="card-title">🔗 اتصال به بک‌اند</div>
+        <div class="input-group"><input type="text" id="backendUrl" placeholder="آدرس بک‌اند" value="http://localhost:8080"><button class="btn btn-start" onclick="connectBackend()">🔌 اتصال</button></div>
+        <div id="connectionStatus" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+    </div>
 
-        <!-- Metrics -->
-        <div class="metrics">
-            <div class="metric">
-                <div class="metric-label">⚡ هش‌ریت</div>
-                <div class="metric-value" id="hashrate">-- <span class="unit">H/s</span></div>
-            </div>
-            <div class="metric">
-                <div class="metric-label">✅ پذیرفته‌شده</div>
-                <div class="metric-value" id="accepted">--</div>
-            </div>
-            <div class="metric">
-                <div class="metric-label">❌ رد شده</div>
-                <div class="metric-value" id="rejected">--</div>
-            </div>
-            <div class="metric">
-                <div class="metric-label">🕒 آپتایم</div>
-                <div class="metric-value" id="uptime">--</div>
-            </div>
-            <div class="metric">
-                <div class="metric-label">🧵 هسته‌ها</div>
-                <div class="metric-value" id="threadsDisplay">--</div>
-            </div>
-        </div>
+    <div class="card">
+        <div class="card-title">⚙️ کنترل ماینر (Full Power)</div>
+        <div class="input-group" style="margin-bottom:8px;"><input type="text" id="walletInput" placeholder="کیف پول" value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto"></div>
+        <div class="input-group" style="margin-bottom:8px;"><input type="text" id="serverInput" placeholder="استخر" value="pool.supportxmr.com"><input type="number" id="portInput" placeholder="پورت" value="443"></div>
+        <div class="input-group"><button class="btn btn-start" onclick="startMiner()">⚡ شروع (Full Power)</button><button class="btn btn-stop" onclick="stopMiner()">⏹ توقف</button></div>
+        <div id="statusMsg" style="margin-top:8px;font-size:12px;color:var(--text-muted);"></div>
+    </div>
 
-        <!-- Info -->
-        <div class="card" style="padding:10px 16px;">
-            <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-muted);">
-                <span>🔑 کیف پول: <span id="walletDisplay">--</span></span>
-                <span>🌐 استخر: <span id="serverDisplay">--</span></span>
-                <span>🔌 پورت: <span id="portDisplay">--</span></span>
-                <span>📡 بک‌اند: <span id="backendDisplay">--</span></span>
-            </div>
-        </div>
+    <div class="metrics">
+        <div class="metric"><div class="metric-label">⚡ هش‌ریت</div><div class="metric-value" id="hashrate">-- <span class="unit">H/s</span></div></div>
+        <div class="metric"><div class="metric-label">✅ پذیرفته</div><div class="metric-value" id="accepted">--</div></div>
+        <div class="metric"><div class="metric-label">❌ رد</div><div class="metric-value" id="rejected">--</div></div>
+        <div class="metric"><div class="metric-label">🕒 آپتایم</div><div class="metric-value" id="uptime">--</div></div>
+        <div class="metric"><div class="metric-label">🧵 حالت</div><div class="metric-value" id="modeDisplay">heavy</div></div>
+    </div>
 
-        <!-- Chart -->
-        <div class="card">
-            <div class="card-title">📈 نمودار هش‌ریت</div>
-            <div class="chart-container">
-                <canvas id="hashrateChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Logs -->
-        <div class="card">
-            <div class="card-title">📋 لاگ‌های سیستم</div>
-            <div class="log-container" id="logContainer">
-                <div class="log-empty">⏳ منتظر اتصال به بک‌اند...</div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <span>⚡ Stealth Mode · <span id="liveStatus">در انتظار اتصال</span></span>
+    <div class="card" style="padding:10px 16px;">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-muted);">
+            <span>🔑 کیف پول: <span id="walletDisplay">--</span></span>
+            <span>🌐 استخر: <span id="serverDisplay">--</span></span>
+            <span>🔌 پورت: <span id="portDisplay">--</span></span>
+            <span>⚡ هسته: <span id="threadsDisplay">2</span></span>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="card">
+        <div class="card-title">📈 نمودار هش‌ریت</div>
+        <div class="chart-container"><canvas id="hashrateChart"></canvas></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">📋 لاگ‌ها (فیلترشده)</div>
+        <div class="log-container" id="logContainer"><div class="log-empty">⏳ در انتظار اتصال...</div></div>
+    </div>
+
+    <div class="footer">⚡ Full Power Mode · Heavy · <span id="liveStatus">در انتظار اتصال</span></div>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
