@@ -1,3 +1,4 @@
+// ─── متغیرها ──────────────────────────────────────────────────────────────────
 let backendUrl = '';
 let isConnected = false;
 let ws = null;
@@ -28,7 +29,7 @@ const elements = {
     backendUrlInput: document.getElementById('backendUrl')
 };
 
-// ─── Connection ──────────────────────────────────────────────────────────────
+// ─── اتصال به بک‌اند ──────────────────────────────────────────────────────────
 function connectBackend() {
     const url = elements.backendUrlInput.value.trim();
     if (!url) return showStatus('❌ آدرس بک‌اند را وارد کنید', 'error');
@@ -56,6 +57,7 @@ async function testConnection() {
     }
 }
 
+// ─── WebSocket (پایدار، بدون لاگ در کنسول) ──────────────────────────────────
 function connectWebSocket() {
     if (ws && ws.readyState === WebSocket.OPEN) {
         ws.close();
@@ -66,7 +68,7 @@ function connectWebSocket() {
         ws = new WebSocket(`${wsProtocol}://${wsUrl}/ws`);
         
         ws.onopen = function() {
-            console.log('✅ WebSocket connected');
+            // بدون لاگ در ترمینال
         };
         
         ws.onmessage = function(event) {
@@ -78,25 +80,25 @@ function connectWebSocket() {
                     updateMetrics(data.data);
                 }
             } catch(e) {
-                console.error('WebSocket message error:', e);
+                // خطا را نادیده بگیر (بدون لاگ)
             }
         };
         
         ws.onclose = function() {
-            console.log('❌ WebSocket disconnected');
-            // تلاش مجدد بعد از ۳ ثانیه
-            setTimeout(connectWebSocket, 3000);
+            // تلاش مجدد بدون لاگ
+            setTimeout(connectWebSocket, 2000);
         };
         
-        ws.onerror = function(error) {
-            console.error('⚠️ WebSocket error:', error);
+        ws.onerror = function() {
+            // خطا را نادیده بگیر (بدون لاگ)
         };
     } catch(e) {
-        console.error('WebSocket connection error:', e);
+        // بدون لاگ
+        setTimeout(connectWebSocket, 3000);
     }
 }
 
-// ─── Logs ────────────────────────────────────────────────────────────────────
+// ─── نمایش لاگ‌ها در صفحه ────────────────────────────────────────────────────
 function addLog(time, msg, level = 'info') {
     const container = elements.logContainer;
     const empty = container.querySelector('.log-empty');
@@ -111,36 +113,20 @@ function addLog(time, msg, level = 'info') {
     }
 }
 
-// ─── Metrics ──────────────────────────────────────────────────────────────────
+// ─── به‌روزرسانی متریک‌ها ────────────────────────────────────────────────────
 function updateMetrics(data) {
     if (data.hashrate !== undefined) {
         elements.hashrate.textContent = data.hashrate.toFixed(0) + ' H/s';
         updateChart(data.hashrate);
     }
-    if (data.accepted !== undefined) {
-        elements.accepted.textContent = data.accepted;
-    }
-    if (data.rejected !== undefined) {
-        elements.rejected.textContent = data.rejected;
-    }
-    if (data.uptime !== undefined) {
-        elements.uptime.textContent = formatUptime(data.uptime);
-    }
-    if (data.wallet) {
-        elements.walletDisplay.textContent = data.wallet;
-    }
-    if (data.server) {
-        elements.serverDisplay.textContent = data.server;
-    }
-    if (data.port) {
-        elements.portDisplay.textContent = data.port;
-    }
-    if (data.threads) {
-        elements.threadsDisplay.textContent = data.threads;
-    }
-    if (data.mode) {
-        elements.modeDisplay.textContent = data.mode;
-    }
+    if (data.accepted !== undefined) elements.accepted.textContent = data.accepted;
+    if (data.rejected !== undefined) elements.rejected.textContent = data.rejected;
+    if (data.uptime !== undefined) elements.uptime.textContent = formatUptime(data.uptime);
+    if (data.wallet) elements.walletDisplay.textContent = data.wallet;
+    if (data.server) elements.serverDisplay.textContent = data.server;
+    if (data.port) elements.portDisplay.textContent = data.port;
+    if (data.threads) elements.threadsDisplay.textContent = data.threads;
+    if (data.mode) elements.modeDisplay.textContent = data.mode;
     
     const badge = elements.statusBadge;
     const dot = elements.statusDot;
@@ -171,7 +157,7 @@ function formatUptime(s) {
     return (h ? h + 'h ' : '') + (m ? m + 'm ' : '') + sec + 's';
 }
 
-// ─── Chart ────────────────────────────────────────────────────────────────────
+// ─── نمودار ────────────────────────────────────────────────────────────────────
 function initChart() {
     const ctx = document.getElementById('hashrateChart').getContext('2d');
     chartInstance = new Chart(ctx, {
@@ -222,7 +208,7 @@ function updateChart(val) {
     chartInstance.update('none');
 }
 
-// ─── API Calls ────────────────────────────────────────────────────────────────
+// ─── کنترل ماینر ──────────────────────────────────────────────────────────────
 async function startMiner() {
     if (!isConnected) {
         return showStatus('❌ ابتدا به بک‌اند متصل شوید', 'error');
@@ -279,6 +265,7 @@ async function stopMiner() {
     setTimeout(fetchStatus, 1000);
 }
 
+// ─── دریافت وضعیت ─────────────────────────────────────────────────────────────
 async function fetchStatus() {
     if (!isConnected) return;
     try {
@@ -288,7 +275,7 @@ async function fetchStatus() {
             updateMetrics(data);
         }
     } catch(e) {
-        console.error('Status fetch error:', e);
+        // بدون لاگ
     }
 }
 
@@ -305,10 +292,11 @@ async function fetchLogs() {
             }
         }
     } catch(e) {
-        console.error('Logs fetch error:', e);
+        // بدون لاگ
     }
 }
 
+// ─── نمایش پیام‌ها ───────────────────────────────────────────────────────────
 function showStatus(msg, type = 'info') {
     const el = elements.statusMsg;
     if (!el) return;
@@ -323,12 +311,13 @@ function showConnectionStatus(msg, type = 'info') {
     el.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
 }
 
+// ─── بروزرسانی همه ────────────────────────────────────────────────────────────
 async function refreshAll() {
     await fetchStatus();
     await fetchLogs();
 }
 
-// ─── Initialization ──────────────────────────────────────────────────────────
+// ─── مقداردهی اولیه ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     initChart();
     const saved = localStorage.getItem('backendUrl');
@@ -341,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ─── Window exports ──────────────────────────────────────────────────────────
+// ─── توابع قابل دسترس از HTML ───────────────────────────────────────────────
 window.connectBackend = connectBackend;
 window.startMiner = startMiner;
 window.stopMiner = stopMiner;
