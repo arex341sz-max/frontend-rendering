@@ -37,6 +37,17 @@
         <div class="metric"><div class="metric-label">❌ رد</div><div class="metric-value" id="rejected">--</div></div>
         <div class="metric"><div class="metric-label">🕒 آپتایم</div><div class="metric-value" id="uptime">--</div></div>
         <div class="metric"><div class="metric-label">🧵 حالت</div><div class="metric-value" id="modeDisplay">heavy</div></div>
+        <div class="metric">
+        <div class="metric-label">🧠 CPU</div>
+            <div class="metric-value" id="cpuUsage">--%</div>
+            <div class="progress-bar"><div class="progress-fill" id="cpuFill" style="width:0%;background:#4fc3f7;"></div></div>
+        </div>
+        <div class="metric">
+                <div class="metric-label">💾 RAM</div>
+                <div class="metric-value" id="ramUsage">--%</div>
+                <div class="progress-bar"><div class="progress-fill" id="ramFill" style="width:0%;background:#ff6b35;"></div></div>
+                <div class="ram-detail" id="ramDetail" style="font-size:10px;color:var(--text-muted);"></div>
+        </div>
     </div>
 
     <div class="card" style="padding:10px 16px;">
