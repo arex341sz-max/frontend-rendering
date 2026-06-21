@@ -1,4 +1,3 @@
-// ─── متغیرها ──────────────────────────────────────────────────────────────────
 let backendUrl = '';
 let isConnected = false;
 let ws = null;
@@ -29,7 +28,6 @@ const elements = {
     backendUrlInput: document.getElementById('backendUrl')
 };
 
-// ─── اتصال به بک‌اند ──────────────────────────────────────────────────────────
 function connectBackend() {
     const url = elements.backendUrlInput.value.trim();
     if (!url) return showStatus('❌ آدرس بک‌اند را وارد کنید', 'error');
@@ -48,7 +46,7 @@ async function testConnection() {
             connectWebSocket();
             refreshAll();
             if (statusInterval) clearInterval(statusInterval);
-            statusInterval = setInterval(fetchStatus, 3000);
+            statusInterval = setInterval(fetchStatus, 5000);
         } else {
             showConnectionStatus('❌ پاسخ ناموفق', 'error');
         }
@@ -57,10 +55,12 @@ async function testConnection() {
     }
 }
 
-// ─── WebSocket (پایدار، بدون لاگ در کنسول) ──────────────────────────────────
 function connectWebSocket() {
     if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
+        return;
+    }
+    if (ws && ws.readyState === WebSocket.CONNECTING) {
+        return;
     }
     try {
         const wsProtocol = backendUrl.startsWith('https') ? 'wss' : 'ws';
@@ -68,7 +68,7 @@ function connectWebSocket() {
         ws = new WebSocket(`${wsProtocol}://${wsUrl}/ws`);
         
         ws.onopen = function() {
-            // بدون لاگ در ترمینال
+            // فقط وضعیت را به‌روز کن (بدون لاگ)
         };
         
         ws.onmessage = function(event) {
@@ -79,26 +79,24 @@ function connectWebSocket() {
                 } else if (data.type === 'status') {
                     updateMetrics(data.data);
                 }
-            } catch(e) {
-                // خطا را نادیده بگیر (بدون لاگ)
-            }
+            } catch(e) {}
         };
         
         ws.onclose = function() {
-            // تلاش مجدد بدون لاگ
-            setTimeout(connectWebSocket, 2000);
+            // فقط بعد از ۵ ثانیه دوباره وصل شو
+            setTimeout(function() {
+                if (isConnected) {
+                    connectWebSocket();
+                }
+            }, 5000);
         };
         
         ws.onerror = function() {
-            // خطا را نادیده بگیر (بدون لاگ)
+            // خطا را نادیده بگیر
         };
-    } catch(e) {
-        // بدون لاگ
-        setTimeout(connectWebSocket, 3000);
-    }
+    } catch(e) {}
 }
 
-// ─── نمایش لاگ‌ها در صفحه ────────────────────────────────────────────────────
 function addLog(time, msg, level = 'info') {
     const container = elements.logContainer;
     const empty = container.querySelector('.log-empty');
@@ -113,7 +111,6 @@ function addLog(time, msg, level = 'info') {
     }
 }
 
-// ─── به‌روزرسانی متریک‌ها ────────────────────────────────────────────────────
 function updateMetrics(data) {
     if (data.hashrate !== undefined) {
         elements.hashrate.textContent = data.hashrate.toFixed(0) + ' H/s';
@@ -135,12 +132,12 @@ function updateMetrics(data) {
     if (data.running && data.connected) {
         badge.className = 'status-badge online';
         dot.className = 'dot';
-        text.textContent = '⚡ FULL POWER';
-        elements.liveStatus.textContent = '⚡ استخراج فعال';
+        text.textContent = '⚡ فعال';
+        elements.liveStatus.textContent = '⚡ در حال استخراج';
     } else if (data.running) {
         badge.className = 'status-badge connecting';
         dot.className = 'dot';
-        text.textContent = '🔄 در حال اتصال...';
+        text.textContent = '🔄 اتصال...';
         elements.liveStatus.textContent = '🔄 در حال راه‌اندازی';
     } else {
         badge.className = 'status-badge offline';
@@ -157,7 +154,6 @@ function formatUptime(s) {
     return (h ? h + 'h ' : '') + (m ? m + 'm ' : '') + sec + 's';
 }
 
-// ─── نمودار ────────────────────────────────────────────────────────────────────
 function initChart() {
     const ctx = document.getElementById('hashrateChart').getContext('2d');
     chartInstance = new Chart(ctx, {
@@ -208,7 +204,6 @@ function updateChart(val) {
     chartInstance.update('none');
 }
 
-// ─── کنترل ماینر ──────────────────────────────────────────────────────────────
 async function startMiner() {
     if (!isConnected) {
         return showStatus('❌ ابتدا به بک‌اند متصل شوید', 'error');
@@ -227,7 +222,7 @@ async function startMiner() {
         return showStatus('❌ پورت نامعتبر', 'error');
     }
     
-    showStatus('⚡ در حال راه‌اندازی Full Power...', 'info');
+    showStatus('⚡ در حال راه‌اندازی...', 'info');
     try {
         const res = await fetch(`${backendUrl}/api/start`, {
             method: 'POST',
@@ -265,7 +260,6 @@ async function stopMiner() {
     setTimeout(fetchStatus, 1000);
 }
 
-// ─── دریافت وضعیت ─────────────────────────────────────────────────────────────
 async function fetchStatus() {
     if (!isConnected) return;
     try {
@@ -274,9 +268,7 @@ async function fetchStatus() {
             const data = await res.json();
             updateMetrics(data);
         }
-    } catch(e) {
-        // بدون لاگ
-    }
+    } catch(e) {}
 }
 
 async function fetchLogs() {
@@ -291,12 +283,9 @@ async function fetchLogs() {
                 });
             }
         }
-    } catch(e) {
-        // بدون لاگ
-    }
+    } catch(e) {}
 }
 
-// ─── نمایش پیام‌ها ───────────────────────────────────────────────────────────
 function showStatus(msg, type = 'info') {
     const el = elements.statusMsg;
     if (!el) return;
@@ -311,13 +300,11 @@ function showConnectionStatus(msg, type = 'info') {
     el.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
 }
 
-// ─── بروزرسانی همه ────────────────────────────────────────────────────────────
 async function refreshAll() {
     await fetchStatus();
     await fetchLogs();
 }
 
-// ─── مقداردهی اولیه ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     initChart();
     const saved = localStorage.getItem('backendUrl');
@@ -330,7 +317,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ─── توابع قابل دسترس از HTML ───────────────────────────────────────────────
 window.connectBackend = connectBackend;
 window.startMiner = startMiner;
 window.stopMiner = stopMiner;
