@@ -1,76 +1,781 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Full Power Mining</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ Full Power Mining</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* ─── TOKENS ─────────────────────────────────────────────── */
+    :root {
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --transition: 0.22s cubic-bezier(.4,0,.2,1);
+
+      /* Blue palette */
+      --blue-50:  #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-200: #bfdbfe;
+      --blue-300: #93c5fd;
+      --blue-400: #60a5fa;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+      --blue-800: #1e40af;
+      --blue-900: #1e3a8a;
+      --blue-950: #0f1f4a;
+
+      --green: #22c55e;
+      --red:   #ef4444;
+      --amber: #f59e0b;
+    }
+
+    /* ─── DARK THEME ──────────────────────────────────────────── */
+    [data-theme="dark"] {
+      --bg-base:    #060d1f;
+      --bg-surface: #0b1530;
+      --bg-card:    #0f1d3a;
+      --bg-input:   rgba(255,255,255,.04);
+      --bg-inset:   rgba(0,0,0,.35);
+
+      --border:     rgba(59,130,246,.15);
+      --border-hover: rgba(96,165,250,.35);
+
+      --text-1: #e8f0fe;
+      --text-2: #94acd4;
+      --text-3: #4d6899;
+
+      --accent:      var(--blue-400);
+      --accent-soft: rgba(96,165,250,.12);
+      --accent-glow: rgba(59,130,246,.25);
+
+      --btn-primary-bg:  linear-gradient(135deg, var(--blue-600), var(--blue-800));
+      --btn-primary-shadow: 0 4px 18px rgba(37,99,235,.45);
+
+      --metric-glow: 0 0 0 1px rgba(59,130,246,.1), 0 8px 32px rgba(0,0,0,.4);
+      --card-shadow: 0 4px 24px rgba(0,0,0,.5);
+
+      --scrollbar: rgba(59,130,246,.2);
+      --logo-ring: rgba(96,165,250,.2);
+    }
+
+    /* ─── LIGHT THEME ─────────────────────────────────────────── */
+    [data-theme="light"] {
+      --bg-base:    #f0f4ff;
+      --bg-surface: #ffffff;
+      --bg-card:    #ffffff;
+      --bg-input:   rgba(59,130,246,.04);
+      --bg-inset:   #f8faff;
+
+      --border:     rgba(59,130,246,.18);
+      --border-hover: rgba(37,99,235,.45);
+
+      --text-1: #0f1e3c;
+      --text-2: #3b5280;
+      --text-3: #7a9ac8;
+
+      --accent:      var(--blue-600);
+      --accent-soft: rgba(59,130,246,.08);
+      --accent-glow: rgba(59,130,246,.18);
+
+      --btn-primary-bg:  linear-gradient(135deg, var(--blue-500), var(--blue-700));
+      --btn-primary-shadow: 0 4px 18px rgba(59,130,246,.35);
+
+      --metric-glow: 0 0 0 1px rgba(59,130,246,.1), 0 4px 20px rgba(59,130,246,.08);
+      --card-shadow: 0 2px 12px rgba(59,130,246,.08), 0 1px 3px rgba(0,0,0,.06);
+
+      --scrollbar: rgba(59,130,246,.25);
+      --logo-ring: rgba(59,130,246,.2);
+    }
+
+    /* ─── RESET ───────────────────────────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-1);
+      min-height: 100vh;
+      padding: 24px 20px;
+      direction: rtl;
+      transition: background var(--transition), color var(--transition);
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% -10%, var(--accent-glow), transparent),
+        radial-gradient(ellipse 40% 60% at 100% 100%, rgba(37,99,235,.05), transparent);
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* ─── HEADER ──────────────────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 16px 22px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+      position: sticky;
+      top: 12px;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 14px; }
+
+    .logo-wrap {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--accent-soft);
+      border: 1px solid var(--logo-ring);
+      display: grid; place-items: center;
+      font-size: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .logo-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,.05));
+    }
+
+    .header h1 {
+      font-size: 17px; font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--text-1);
+    }
+    .header .subtitle {
+      display: block;
+      font-size: 10px; font-weight: 500;
+      color: var(--text-3);
+      letter-spacing: .04em;
+      margin-top: 1px;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    /* ─── THEME TOGGLE ────────────────────────────────────────── */
+    .theme-toggle {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
+      color: var(--accent);
+      cursor: pointer;
+      display: grid; place-items: center;
+      font-size: 16px;
+      transition: all var(--transition);
+    }
+    .theme-toggle:hover { border-color: var(--border-hover); background: var(--accent-glow); }
+
+    /* ─── STATUS BADGE ────────────────────────────────────────── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: .02em;
+      transition: all var(--transition);
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-badge.online  { background: rgba(34,197,94,.1);  color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+    .status-badge.online .dot  { background: var(--green); animation: blink 2s infinite; }
+    .status-badge.offline { background: rgba(239,68,68,.1); color: var(--red);   border: 1px solid rgba(239,68,68,.2); }
+    .status-badge.offline .dot { background: var(--red); }
+    .status-badge.connecting { background: rgba(245,158,11,.1); color: var(--amber); border: 1px solid rgba(245,158,11,.2); }
+    .status-badge.connecting .dot { background: var(--amber); animation: blink .8s infinite; }
+
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.3; transform:scale(.7); }
+    }
+
+    /* ─── BUTTONS ─────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-family: inherit;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn:hover  { transform: translateY(-1px); }
+    .btn:active { transform: scale(.97); }
+
+    .btn-primary {
+      background: var(--btn-primary-bg);
+      color: #fff;
+      box-shadow: var(--btn-primary-shadow);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 26px rgba(59,130,246,.55); }
+
+    .btn-start {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(22,163,74,.35);
+    }
+    .btn-start:hover { box-shadow: 0 5px 22px rgba(22,163,74,.5); }
+
+    .btn-stop {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(220,38,38,.3);
+    }
+    .btn-stop:hover { box-shadow: 0 5px 22px rgba(220,38,38,.45); }
+
+    .btn-ghost {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--accent-glow); border-color: var(--border-hover); }
+
+    /* ─── CARDS ───────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      box-shadow: var(--card-shadow);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .card:hover { border-color: var(--border-hover); }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-3);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .card-title .icon-chip {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      display: grid; place-items: center;
+      font-size: 12px;
+    }
+
+    /* ─── INPUTS ──────────────────────────────────────────────── */
+    .input-group {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin-bottom: 10px;
+    }
+    .input-group:last-child { margin-bottom: 0; }
+
+    input[type="text"], input[type="number"] {
+      flex: 1; min-width: 130px;
+      padding: 9px 13px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-1);
+      font-size: 12px; font-family: inherit;
+      outline: none;
+      transition: all var(--transition);
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: var(--accent-soft);
+    }
+    input::placeholder { color: var(--text-3); }
+    input[type="number"] { max-width: 90px; min-width: 70px; }
+
+    .status-hint {
+      font-size: 11px; color: var(--text-3); margin-top: 6px;
+    }
+
+    /* ─── METRICS GRID ────────────────────────────────────────── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      box-shadow: var(--metric-glow);
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::before {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 60px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent));
+      opacity: .5;
+    }
+    .metric:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--metric-glow), 0 0 0 1px var(--border-hover);
+    }
+
+    .metric-label {
+      font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-size: 24px; font-weight: 800;
+      color: var(--text-1);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .metric-value .unit {
+      font-size: 12px; font-weight: 500;
+      color: var(--text-3); margin-right: 2px;
+    }
+
+    /* ─── PROGRESS BAR ────────────────────────────────────────── */
+    .progress-track {
+      width: 100%; height: 5px;
+      background: rgba(255,255,255,.05);
+      border-radius: 3px;
+      margin-top: 9px;
+      overflow: hidden;
+    }
+    [data-theme="light"] .progress-track { background: rgba(59,130,246,.08); }
+
+    .progress-fill {
+      height: 100%; border-radius: 3px;
+      transition: width .9s cubic-bezier(.4,0,.2,1);
+    }
+    .progress-fill.cpu { background: linear-gradient(90deg, var(--blue-400), var(--blue-300)); }
+    .progress-fill.ram { background: linear-gradient(90deg, #a78bfa, #818cf8); }
+
+    .metric-sub {
+      font-size: 9px; color: var(--text-3); margin-top: 4px;
+    }
+
+    /* ─── INFO STRIP ──────────────────────────────────────────── */
+    .info-strip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--card-shadow);
+    }
+    .info-strip-inner {
+      display: flex; flex-wrap: wrap; gap: 16px;
+    }
+    .info-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text-3);
+    }
+    .info-item strong { color: var(--text-2); font-weight: 600; }
+
+    /* ─── CHART ───────────────────────────────────────────────── */
+    .chart-wrap {
+      width: 100%; height: 220px; position: relative;
+    }
+
+    /* ─── LOGS ────────────────────────────────────────────────── */
+    .log-box {
+      height: 320px; overflow-y: auto;
+      background: var(--bg-inset);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; line-height: 1.75;
+    }
+    .log-box::-webkit-scrollbar { width: 4px; }
+    .log-box::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
+    .log-box::-webkit-scrollbar-track { background: transparent; }
+
+    .log-empty { color: var(--text-3); text-align: center; padding: 60px 0; font-family: 'Vazirmatn', sans-serif; }
+
+    .log-line {
+      display: flex; gap: 8px; align-items: baseline;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255,255,255,.025);
+    }
+    [data-theme="light"] .log-line { border-bottom-color: rgba(59,130,246,.06); }
+
+    .log-ts { color: var(--text-3); flex-shrink: 0; font-size: 10px; }
+    .log-msg { word-break: break-all; }
+    .log-line.success .log-msg { color: var(--green); }
+    .log-line.error   .log-msg { color: var(--red); }
+    .log-line.warning .log-msg { color: var(--amber); }
+    .log-line.info    .log-msg { color: var(--blue-300); }
+    [data-theme="light"] .log-line.info .log-msg { color: var(--blue-600); }
+    .log-line.default .log-msg { color: var(--text-2); }
+
+    /* ─── FOOTER ──────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 16px 0 6px;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+      font-size: 10px; color: var(--text-3);
+      letter-spacing: .04em;
+    }
+    .footer span { color: var(--accent); }
+
+    /* ─── DIVIDER ─────────────────────────────────────────────── */
+    .section-label {
+      font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .12em;
+      color: var(--text-3);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      body { padding: 14px 12px; }
+      .header { padding: 13px 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .metric-value { font-size: 20px; }
+      .chart-wrap { height: 170px; }
+      .log-box { height: 240px; }
+    }
+    @media (max-width: 360px) {
+      .metrics { grid-template-columns: 1fr; }
+    }
+
+    /* ─── ACCENT ANIMATIONS ────────────────────────────────────── */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    .hashrate-glow {
+      background: linear-gradient(90deg, var(--text-1) 30%, var(--accent) 50%, var(--text-1) 70%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
 </head>
 <body>
+
 <div class="container">
-    <header class="header">
-        <div class="header-title"><span class="icon">⚡</span><h1>Full Power Mining</h1><span class="subtitle">Heavy Mode · 2 Threads</span></div>
-        <div class="header-actions">
-            <span class="status-badge offline" id="statusBadge"><span class="dot" id="statusDot"></span><span id="statusText">غیرفعال</span></span>
-            <button class="btn btn-refresh" onclick="refreshAll()">⟳</button>
-        </div>
-    </header>
 
-    <div class="card">
-        <div class="card-title">🔗 اتصال به بک‌اند</div>
-        <div class="input-group"><input type="text" id="backendUrl" placeholder="آدرس بک‌اند" value="http://localhost:8080"><button class="btn btn-start" onclick="connectBackend()">🔌 اتصال</button></div>
-        <div id="connectionStatus" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+  <!-- ─── HEADER ─── -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-wrap">⚡</div>
+      <div>
+        <h1>Full Power Mining</h1>
+        <span class="subtitle">Heavy Mode · 2 Threads</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="status-badge offline" id="statusBadge">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">غیرفعال</span>
+      </span>
+      <button class="theme-toggle" id="themeToggle" title="تغییر تم" onclick="toggleTheme()">🌙</button>
+      <button class="btn btn-ghost" onclick="refreshAll()">⟳ بروزرسانی</button>
+    </div>
+  </header>
+
+  <!-- ─── CONNECTION ─── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <span class="icon-chip">🔗</span>
+        اتصال به بک‌اند
+      </div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="backendUrl" placeholder="آدرس بک‌اند (مثال: http://localhost:8080)" value="http://localhost:8080" />
+      <button class="btn btn-primary" onclick="connectBackend()">🔌 اتصال</button>
+    </div>
+    <div class="status-hint" id="connectionStatus">در انتظار اتصال…</div>
+  </div>
+
+  <!-- ─── MINER CONTROL ─── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <span class="icon-chip">⚙️</span>
+        کنترل ماینر
+      </div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="walletInput" placeholder="آدرس کیف پول" value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto" />
+    </div>
+    <div class="input-group">
+      <input type="text" id="serverInput" placeholder="آدرس استخر" value="pool.supportxmr.com" />
+      <input type="number" id="portInput" placeholder="پورت" value="443" />
+    </div>
+    <div class="input-group">
+      <button class="btn btn-start" onclick="startMiner()">⚡ شروع ماینینگ</button>
+      <button class="btn btn-stop"  onclick="stopMiner()">⏹ توقف</button>
+    </div>
+    <div class="status-hint" id="statusMsg"></div>
+  </div>
+
+  <!-- ─── METRICS ─── -->
+  <div class="section-label">شاخص‌های لحظه‌ای</div>
+  <div class="metrics">
+
+    <div class="metric">
+      <div class="metric-label">⚡ هش‌ریت</div>
+      <div class="metric-value" id="hashrate">
+        <span class="hashrate-glow">--</span>
+        <span class="unit">H/s</span>
+      </div>
     </div>
 
-    <div class="card">
-        <div class="card-title">⚙️ کنترل ماینر (Full Power)</div>
-        <div class="input-group" style="margin-bottom:8px;"><input type="text" id="walletInput" placeholder="کیف پول" value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto"></div>
-        <div class="input-group" style="margin-bottom:8px;"><input type="text" id="serverInput" placeholder="استخر" value="pool.supportxmr.com"><input type="number" id="portInput" placeholder="پورت" value="443"></div>
-        <div class="input-group"><button class="btn btn-start" onclick="startMiner()">⚡ شروع (Full Power)</button><button class="btn btn-stop" onclick="stopMiner()">⏹ توقف</button></div>
-        <div id="statusMsg" style="margin-top:8px;font-size:12px;color:var(--text-muted);"></div>
+    <div class="metric">
+      <div class="metric-label">✅ پذیرفته</div>
+      <div class="metric-value" id="accepted">--</div>
     </div>
 
-    <div class="metrics">
-        <div class="metric"><div class="metric-label">⚡ هش‌ریت</div><div class="metric-value" id="hashrate">-- <span class="unit">H/s</span></div></div>
-        <div class="metric"><div class="metric-label">✅ پذیرفته</div><div class="metric-value" id="accepted">--</div></div>
-        <div class="metric"><div class="metric-label">❌ رد</div><div class="metric-value" id="rejected">--</div></div>
-        <div class="metric"><div class="metric-label">🕒 آپتایم</div><div class="metric-value" id="uptime">--</div></div>
-        <div class="metric"><div class="metric-label">🧵 حالت</div><div class="metric-value" id="modeDisplay">heavy</div></div>
-        <div class="metric">
-        <div class="metric-label">🧠 CPU</div>
-            <div class="metric-value" id="cpuUsage">--%</div>
-            <div class="progress-bar"><div class="progress-fill" id="cpuFill" style="width:0%;background:#4fc3f7;"></div></div>
-        </div>
-        <div class="metric">
-                <div class="metric-label">💾 RAM</div>
-                <div class="metric-value" id="ramUsage">--%</div>
-                <div class="progress-bar"><div class="progress-fill" id="ramFill" style="width:0%;background:#ff6b35;"></div></div>
-                <div class="ram-detail" id="ramDetail" style="font-size:10px;color:var(--text-muted);"></div>
-        </div>
+    <div class="metric">
+      <div class="metric-label">❌ رد شده</div>
+      <div class="metric-value" id="rejected">--</div>
     </div>
 
-    <div class="card" style="padding:10px 16px;">
-        <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-muted);">
-            <span>🔑 کیف پول: <span id="walletDisplay">--</span></span>
-            <span>🌐 استخر: <span id="serverDisplay">--</span></span>
-            <span>🔌 پورت: <span id="portDisplay">--</span></span>
-            <span>⚡ هسته: <span id="threadsDisplay">2</span></span>
-        </div>
+    <div class="metric">
+      <div class="metric-label">🕒 آپتایم</div>
+      <div class="metric-value" id="uptime">--</div>
     </div>
 
-    <div class="card">
-        <div class="card-title">📈 نمودار هش‌ریت</div>
-        <div class="chart-container"><canvas id="hashrateChart"></canvas></div>
+    <div class="metric">
+      <div class="metric-label">🧵 حالت</div>
+      <div class="metric-value" id="modeDisplay" style="font-size:18px;">heavy</div>
     </div>
 
-    <div class="card">
-        <div class="card-title">📋 لاگ‌ها (فیلترشده)</div>
-        <div class="log-container" id="logContainer"><div class="log-empty">⏳ در انتظار اتصال...</div></div>
+    <div class="metric">
+      <div class="metric-label">🧠 CPU</div>
+      <div class="metric-value" id="cpuUsage">--%</div>
+      <div class="progress-track">
+        <div class="progress-fill cpu" id="cpuFill" style="width:0%"></div>
+      </div>
     </div>
 
-    <div class="footer">⚡ Full Power Mode · Heavy · <span id="liveStatus">در انتظار اتصال</span></div>
+    <div class="metric">
+      <div class="metric-label">💾 RAM</div>
+      <div class="metric-value" id="ramUsage">--%</div>
+      <div class="progress-track">
+        <div class="progress-fill ram" id="ramFill" style="width:0%"></div>
+      </div>
+      <div class="metric-sub" id="ramDetail"></div>
+    </div>
+
+  </div>
+
+  <!-- ─── INFO STRIP ─── -->
+  <div class="info-strip">
+    <div class="info-strip-inner">
+      <div class="info-item">🔑 کیف پول: <strong id="walletDisplay">--</strong></div>
+      <div class="info-item">🌐 استخر: <strong id="serverDisplay">--</strong></div>
+      <div class="info-item">🔌 پورت: <strong id="portDisplay">--</strong></div>
+      <div class="info-item">⚡ هسته: <strong id="threadsDisplay">2</strong></div>
+    </div>
+  </div>
+
+  <!-- ─── CHART ─── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><span class="icon-chip">📈</span>نمودار هش‌ریت</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="hashrateChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ─── LOGS ─── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><span class="icon-chip">📋</span>لاگ‌ها</div>
+      <button class="btn btn-ghost" style="padding:5px 11px;font-size:10px;" onclick="clearLogs()">پاک کردن</button>
+    </div>
+    <div class="log-box" id="logContainer">
+      <div class="log-empty">⏳ در انتظار اتصال…</div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    ⚡ Full Power Mode · Heavy ·
+    <span id="liveStatus">در انتظار اتصال</span>
+  </footer>
+
 </div>
-<script src="script.js"></script>
+
+<!-- ─── CHART + THEME SCRIPT ─── -->
+<script>
+  /* ── Theme ── */
+  const html = document.documentElement;
+  const themeBtn = document.getElementById('themeToggle');
+
+  function setTheme(t) {
+    html.setAttribute('data-theme', t);
+    themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('fpm-theme', t);
+    if (window._chart) updateChartColors();
+  }
+
+  function toggleTheme() {
+    setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  }
+
+  // Load saved preference
+  const saved = localStorage.getItem('fpm-theme') ||
+    (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  setTheme(saved);
+
+  /* ── Chart ── */
+  function chartColors() {
+    const dark = html.getAttribute('data-theme') === 'dark';
+    return {
+      line:  dark ? 'rgba(96,165,250,1)'   : 'rgba(37,99,235,1)',
+      fill:  dark ? 'rgba(59,130,246,.12)' : 'rgba(59,130,246,.08)',
+      grid:  dark ? 'rgba(59,130,246,.07)' : 'rgba(59,130,246,.08)',
+      text:  dark ? '#4d6899'              : '#7a9ac8',
+    };
+  }
+
+  let _chart;
+  function initChart() {
+    const c = chartColors();
+    const ctx = document.getElementById('hashrateChart').getContext('2d');
+    _chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'H/s',
+          data: [],
+          borderColor: c.line,
+          backgroundColor: c.fill,
+          borderWidth: 2,
+          fill: true,
+          tension: .45,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: c.line,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 500, easing: 'easeInOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f1d3a',
+            titleColor: '#94acd4',
+            bodyColor: '#60a5fa',
+            borderColor: 'rgba(59,130,246,.25)',
+            borderWidth: 1,
+            padding: 10,
+            displayColors: false,
+            callbacks: { label: ctx => ctx.parsed.y + ' H/s' }
+          }
+        },
+        scales: {
+          x: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 10 } } },
+          y: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 10 } }, beginAtZero: true }
+        }
+      }
+    });
+    window._chart = _chart;
+  }
+
+  function updateChartColors() {
+    const c = chartColors();
+    _chart.data.datasets[0].borderColor = c.line;
+    _chart.data.datasets[0].backgroundColor = c.fill;
+    _chart.options.scales.x.grid.color = c.grid;
+    _chart.options.scales.x.ticks.color = c.text;
+    _chart.options.scales.y.grid.color = c.grid;
+    _chart.options.scales.y.ticks.color = c.text;
+    _chart.update('none');
+  }
+
+  document.addEventListener('DOMContentLoaded', initChart);
+
+  /* ── Stubs (replace with real script.js logic) ── */
+  function connectBackend() {
+    const url = document.getElementById('backendUrl').value;
+    document.getElementById('connectionStatus').textContent = 'در حال اتصال به ' + url + '…';
+    setBadge('connecting', 'در حال اتصال');
+  }
+  function startMiner() {
+    document.getElementById('statusMsg').textContent = '⚡ ماینر در حال راه‌اندازی…';
+    document.getElementById('walletDisplay').textContent = document.getElementById('walletInput').value.slice(0,12) + '…';
+    document.getElementById('serverDisplay').textContent = document.getElementById('serverInput').value;
+    document.getElementById('portDisplay').textContent   = document.getElementById('portInput').value;
+    setBadge('online', 'فعال');
+  }
+  function stopMiner() {
+    document.getElementById('statusMsg').textContent = '⏹ ماینر متوقف شد.';
+    setBadge('offline', 'غیرفعال');
+  }
+  function refreshAll() {
+    addLog('info', 'بروزرسانی دستی…');
+  }
+  function clearLogs() {
+    document.getElementById('logContainer').innerHTML = '<div class="log-empty">لاگ‌ها پاک شدند.</div>';
+  }
+  function setBadge(cls, txt) {
+    const b = document.getElementById('statusBadge');
+    b.className = 'status-badge ' + cls;
+    document.getElementById('statusText').textContent = txt;
+    document.getElementById('liveStatus').textContent = txt;
+  }
+  function addLog(type, msg) {
+    const box = document.getElementById('logContainer');
+    const empty = box.querySelector('.log-empty');
+    if (empty) empty.remove();
+    const now = new Date().toLocaleTimeString('fa-IR');
+    const div = document.createElement('div');
+    div.className = 'log-line ' + (type || 'default');
+    div.innerHTML = `<span class="log-ts">${now}</span><span class="log-msg">${msg}</span>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  /* ── Demo data ── */
+  setTimeout(() => {
+    addLog('info', 'سیستم آماده است');
+    addLog('success', 'اتصال به استخر برقرار شد');
+    addLog('warning', 'هش‌ریت پایین‌تر از حد مورد انتظار');
+    addLog('error', 'بلاک ردشده #2312');
+  }, 600);
+</script>
+<!-- link your real script.js here -->
+<!-- <script src="script.js"></script> -->
 </body>
 </html>
