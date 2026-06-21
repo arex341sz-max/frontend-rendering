@@ -1,4 +1,4 @@
-/* ─── Variables ────────────────────────────────────────────────────────────── */
+ /* ─── Variables ────────────────────────────────────────────────────────────── */
 :root {
     --bg-primary: #0a0e1a;
     --bg-secondary: #12182b;
@@ -21,6 +21,29 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+
+/* ============================================================ */
+/* frontend/style.css (اضافه کردن نوارهای پیشرفت) */
+/* ============================================================ */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+}
+.ram-detail {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 3px;
 }
 
 body {
