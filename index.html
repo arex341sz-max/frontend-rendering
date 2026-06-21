@@ -96,6 +96,18 @@
     .btn-stop:hover { box-shadow:0 5px 18px rgba(220,38,38,.4); }
     .btn-ghost { background:var(--accent-soft); color:var(--accent); border:1px solid var(--border); }
     .btn-ghost:hover { border-color:var(--border-h); }
+    .btn-bug {
+        background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+        color: #fff;
+        box-shadow: 0 3px 12px rgba(139, 92, 246, 0.3);
+    }
+    .btn-bug:hover {
+        box-shadow: 0 5px 18px rgba(139, 92, 246, 0.4);
+    }
+    .btn-bug.active {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        box-shadow: 0 3px 12px rgba(239, 68, 68, 0.3);
+    }
     .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-md); padding:16px 20px; margin-bottom:14px; transition:border-color var(--t), background var(--t), box-shadow .8s ease; position:relative; overflow:hidden; }
     .card:hover { border-color:var(--border-h); }
     .card::before { content:''; position:absolute; top:0; right:0; left:0; height:1px; background:linear-gradient(90deg,transparent 10%,var(--accent) 50%,transparent 90%); opacity:.35; transition:opacity var(--t), background var(--t); }
@@ -220,8 +232,13 @@
     <div class="card-header"><div class="card-title"><span class="chip">⚙️</span>کنترل ماینر</div></div>
     <div class="input-group"><input type="text" id="walletInput" placeholder="آدرس کیف پول" value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto"/></div>
     <div class="input-group"><input type="text" id="serverInput" placeholder="آدرس استخر" value="pool.supportxmr.com"/><input type="number" id="portInput" placeholder="پورت" value="443"/></div>
-    <div class="input-group"><button class="btn btn-start" onclick="startMiner()">⚡ شروع ماینینگ</button><button class="btn btn-stop" onclick="stopMiner()">⏹ توقف</button></div>
+    <div class="input-group">
+      <button class="btn btn-start" onclick="startMiner()">⚡ شروع ماینینگ</button>
+      <button class="btn btn-stop" onclick="stopMiner()">⏹ توقف</button>
+      <button class="btn btn-bug" id="bugToggleBtn" onclick="toggleBugMode()">🐛 فعال‌سازی حالت باگ</button>
+    </div>
     <div class="hint" id="statusMsg"></div>
+    <div class="hint" id="bugStatusMsg" style="color:var(--accent);"></div>
   </div>
 
   <!-- ─── متریک‌ها ─── -->
@@ -395,7 +412,6 @@ function connectBackend() {
     return;
   }
   backendUrl = url.replace(/\/+$/, '');
-  // ذخیره در localStorage
   localStorage.setItem('backendUrl', backendUrl);
   testConnection();
 }
@@ -495,6 +511,22 @@ function updateMetrics(data) {
   } else {
     badge.className = 'status-badge offline'; dot.className = 'dot'; text.textContent = '⏹ غیرفعال';
     el.liveStatus.textContent = '⏹ غیرفعال';
+  }
+  
+  // وضعیت باگ
+  const bugMsg = document.getElementById('bugStatusMsg');
+  const bugBtn = document.getElementById('bugToggleBtn');
+  if (data.bug_mode) {
+    bugMsg.textContent = '🧪 حالت باگ فعال است';
+    bugBtn.textContent = '⏹ غیرفعال‌سازی باگ';
+    bugBtn.classList.add('active');
+    bugActive = true;
+  } else {
+    if (!bugActive) {
+      bugMsg.textContent = '';
+      bugBtn.textContent = '🐛 فعال‌سازی حالت باگ';
+      bugBtn.classList.remove('active');
+    }
   }
 }
 function formatUptime(s) {
@@ -596,6 +628,58 @@ async function fetchSystemStats() {
   } catch(e) {}
 }
 
+/* ── حالت باگ ── */
+let bugActive = false;
+
+async function toggleBugMode() {
+    const btn = document.getElementById('bugToggleBtn');
+    const bugMsg = document.getElementById('bugStatusMsg');
+    
+    if (bugActive) {
+        bugMsg.textContent = '🔄 در حال غیرفعال‌سازی حالت باگ...';
+        try {
+            const res = await fetch(`${backendUrl}/api/deactivate-bug`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                bugActive = false;
+                btn.textContent = '🐛 فعال‌سازی حالت باگ';
+                btn.classList.remove('active');
+                bugMsg.textContent = '⏹️ حالت باگ غیرفعال شد';
+                addLog('info', 'حالت باگ غیرفعال شد');
+            } else {
+                bugMsg.textContent = '❌ ' + data.message;
+            }
+        } catch(e) {
+            bugMsg.textContent = '❌ خطا در غیرفعال‌سازی باگ';
+        }
+    } else {
+        if (!isConnected) {
+            bugMsg.textContent = '❌ ابتدا به بک‌اند متصل شوید';
+            return;
+        }
+        bugMsg.textContent = '🔄 در حال فعال‌سازی حالت باگ (ماینر اصلی متوقف می‌شود)...';
+        try {
+            const res = await fetch(`${backendUrl}/api/activate-bug`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                bugActive = true;
+                btn.textContent = '⏹ غیرفعال‌سازی باگ';
+                btn.classList.add('active');
+                bugMsg.textContent = '⏳ حالت باگ در ۳۰ ثانیه فعال می‌شود...';
+                addLog('info', 'حالت باگ فعال شد (شبیه‌سازی)');
+                setTimeout(() => {
+                    fetchStatus();
+                    bugMsg.textContent = '🧪 حالت باگ فعال است - شبیه‌سازی شارهای تکراری';
+                }, 30000);
+            } else {
+                bugMsg.textContent = '❌ ' + data.message;
+            }
+        } catch(e) {
+            bugMsg.textContent = '❌ خطا در فعال‌سازی باگ';
+        }
+    }
+}
+
 function showStatus(msg, type = 'info') {
   const statusEl = document.getElementById('statusMsg');
   if (!statusEl) return;
@@ -635,6 +719,7 @@ window.stopMiner = stopMiner;
 window.refreshAll = refreshAll;
 window.clearLogs = clearLogs;
 window.toggleTheme = toggleTheme;
+window.toggleBugMode = toggleBugMode;
 
 // لاگ اولیه
 setTimeout(() => addLog('info', 'سیستم آماده است. آدرس بک‌اند را وارد کرده و اتصال را بزنید.'), 300);
