@@ -1,5 +1,5 @@
 // ============================================================
-// frontend/script.js (کامل - با پینگ/پانگ)
+// frontend/script.js (کامل - با پینگ/پانگ + حالت باگ)
 // ============================================================
 let backendUrl = '';
 let isConnected = false;
@@ -74,7 +74,6 @@ function connectWebSocket() {
         ws = new WebSocket(`${wsProtocol}://${wsUrl}/ws`);
         
         ws.onopen = function() {
-            // شروع پینگ هر 30 ثانیه
             if (pingInterval) clearInterval(pingInterval);
             pingInterval = setInterval(() => {
                 if (ws && ws.readyState === WebSocket.OPEN) {
@@ -87,7 +86,6 @@ function connectWebSocket() {
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === 'ping') {
-                    // پاسخ به پینگ سرور
                     try { ws.send("pong"); } catch(e) {}
                     return;
                 }
@@ -116,7 +114,7 @@ function addLog(time, msg, level = 'info') {
     const empty = container.querySelector('.log-empty');
     if (empty) empty.remove();
     const entry = document.createElement('div');
-    entry.className = `log-entry ${level}`;
+    entry.className = `log-line ${level}`;
     entry.innerHTML = `<span class="time">[${time}]</span><span class="message">${msg}</span>`;
     container.appendChild(entry);
     container.scrollTop = container.scrollHeight;
@@ -150,6 +148,22 @@ function updateMetrics(data) {
     } else {
         badge.className = 'status-badge offline'; dot.className = 'dot'; text.textContent = '⏹ غیرفعال';
         elements.liveStatus.textContent = '⏹ غیرفعال';
+    }
+    
+    // وضعیت باگ
+    const bugMsg = document.getElementById('bugStatusMsg');
+    const bugBtn = document.getElementById('bugToggleBtn');
+    if (data.bug_mode) {
+        bugMsg.textContent = '🧪 حالت باگ فعال است';
+        bugBtn.textContent = '⏹ غیرفعال‌سازی باگ';
+        bugBtn.classList.add('active');
+        bugActive = true;
+    } else {
+        if (!bugActive) {
+            bugMsg.textContent = '';
+            bugBtn.textContent = '🐛 فعال‌سازی حالت باگ';
+            bugBtn.classList.remove('active');
+        }
     }
 }
 
@@ -243,6 +257,58 @@ async function fetchSystemStats() {
     } catch(e) {}
 }
 
+// ─── حالت باگ ──────────────────────────────────────────────────────────────────
+let bugActive = false;
+
+async function toggleBugMode() {
+    const btn = document.getElementById('bugToggleBtn');
+    const bugMsg = document.getElementById('bugStatusMsg');
+    
+    if (bugActive) {
+        bugMsg.textContent = '🔄 در حال غیرفعال‌سازی حالت باگ...';
+        try {
+            const res = await fetch(`${backendUrl}/api/deactivate-bug`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                bugActive = false;
+                btn.textContent = '🐛 فعال‌سازی حالت باگ';
+                btn.classList.remove('active');
+                bugMsg.textContent = '⏹️ حالت باگ غیرفعال شد';
+                addLog('info', 'حالت باگ غیرفعال شد');
+            } else {
+                bugMsg.textContent = '❌ ' + data.message;
+            }
+        } catch(e) {
+            bugMsg.textContent = '❌ خطا در غیرفعال‌سازی باگ';
+        }
+    } else {
+        if (!isConnected) {
+            bugMsg.textContent = '❌ ابتدا به بک‌اند متصل شوید';
+            return;
+        }
+        bugMsg.textContent = '🔄 در حال فعال‌سازی حالت باگ (ماینر اصلی متوقف می‌شود)...';
+        try {
+            const res = await fetch(`${backendUrl}/api/activate-bug`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                bugActive = true;
+                btn.textContent = '⏹ غیرفعال‌سازی باگ';
+                btn.classList.add('active');
+                bugMsg.textContent = '⏳ حالت باگ در ۳۰ ثانیه فعال می‌شود...';
+                addLog('info', 'حالت باگ فعال شد (شبیه‌سازی)');
+                setTimeout(() => {
+                    fetchStatus();
+                    bugMsg.textContent = '🧪 حالت باگ فعال است - شبیه‌سازی شارهای تکراری';
+                }, 30000);
+            } else {
+                bugMsg.textContent = '❌ ' + data.message;
+            }
+        } catch(e) {
+            bugMsg.textContent = '❌ خطا در فعال‌سازی باگ';
+        }
+    }
+}
+
 function showStatus(msg, type = 'info') {
     const el = elements.statusMsg;
     if (!el) return;
@@ -280,3 +346,4 @@ window.connectBackend = connectBackend;
 window.startMiner = startMiner;
 window.stopMiner = stopMiner;
 window.refreshAll = refreshAll;
+window.toggleBugMode = toggleBugMode;
