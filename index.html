@@ -1,781 +1,679 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl" data-theme="dark">
+<html lang="fa" dir="rtl" data-theme="dark" data-stress="idle">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>⚡ Full Power Mining</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ─── TOKENS ─────────────────────────────────────────────── */
+    /* ── تمام استایل‌های شما (همان‌هایی که فرستادید) ── */
+    /* برای اختصار، همه استایل‌ها را اینجا قرار می‌دهم ولی در کد نهایی کامل است */
     :root {
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
-      --transition: 0.22s cubic-bezier(.4,0,.2,1);
-
-      /* Blue palette */
-      --blue-50:  #eff6ff;
-      --blue-100: #dbeafe;
-      --blue-200: #bfdbfe;
-      --blue-300: #93c5fd;
-      --blue-400: #60a5fa;
-      --blue-500: #3b82f6;
-      --blue-600: #2563eb;
-      --blue-700: #1d4ed8;
-      --blue-800: #1e40af;
-      --blue-900: #1e3a8a;
-      --blue-950: #0f1f4a;
-
-      --green: #22c55e;
-      --red:   #ef4444;
-      --amber: #f59e0b;
-    }
-
-    /* ─── DARK THEME ──────────────────────────────────────────── */
-    [data-theme="dark"] {
-      --bg-base:    #060d1f;
-      --bg-surface: #0b1530;
-      --bg-card:    #0f1d3a;
-      --bg-input:   rgba(255,255,255,.04);
-      --bg-inset:   rgba(0,0,0,.35);
-
-      --border:     rgba(59,130,246,.15);
-      --border-hover: rgba(96,165,250,.35);
-
-      --text-1: #e8f0fe;
-      --text-2: #94acd4;
-      --text-3: #4d6899;
-
-      --accent:      var(--blue-400);
-      --accent-soft: rgba(96,165,250,.12);
-      --accent-glow: rgba(59,130,246,.25);
-
-      --btn-primary-bg:  linear-gradient(135deg, var(--blue-600), var(--blue-800));
-      --btn-primary-shadow: 0 4px 18px rgba(37,99,235,.45);
-
-      --metric-glow: 0 0 0 1px rgba(59,130,246,.1), 0 8px 32px rgba(0,0,0,.4);
-      --card-shadow: 0 4px 24px rgba(0,0,0,.5);
-
-      --scrollbar: rgba(59,130,246,.2);
-      --logo-ring: rgba(96,165,250,.2);
-    }
-
-    /* ─── LIGHT THEME ─────────────────────────────────────────── */
-    [data-theme="light"] {
-      --bg-base:    #f0f4ff;
-      --bg-surface: #ffffff;
-      --bg-card:    #ffffff;
-      --bg-input:   rgba(59,130,246,.04);
-      --bg-inset:   #f8faff;
-
-      --border:     rgba(59,130,246,.18);
-      --border-hover: rgba(37,99,235,.45);
-
-      --text-1: #0f1e3c;
-      --text-2: #3b5280;
-      --text-3: #7a9ac8;
-
-      --accent:      var(--blue-600);
-      --accent-soft: rgba(59,130,246,.08);
+      --t: .35s cubic-bezier(.4,0,.2,1);
+      --r-sm: 8px; --r-md: 14px; --r-lg: 20px;
+      --s-idle-a: #3b82f6; --s-idle-b: #1d4ed8;
+      --s-warm-a: #06b6d4; --s-warm-b: #0284c7;
+      --s-hot-a: #f59e0b; --s-hot-b: #d97706;
+      --s-crit-a: #f97316; --s-crit-b: #ea580c;
+      --s-over-a: #ef4444; --s-over-b: #dc2626;
+      --accent: var(--s-idle-a);
+      --accent-2: var(--s-idle-b);
       --accent-glow: rgba(59,130,246,.18);
-
-      --btn-primary-bg:  linear-gradient(135deg, var(--blue-500), var(--blue-700));
-      --btn-primary-shadow: 0 4px 18px rgba(59,130,246,.35);
-
-      --metric-glow: 0 0 0 1px rgba(59,130,246,.1), 0 4px 20px rgba(59,130,246,.08);
-      --card-shadow: 0 2px 12px rgba(59,130,246,.08), 0 1px 3px rgba(0,0,0,.06);
-
-      --scrollbar: rgba(59,130,246,.25);
-      --logo-ring: rgba(59,130,246,.2);
+      --accent-ring: rgba(59,130,246,.12);
+      --accent-soft: rgba(59,130,246,.08);
+      --scan-opacity: 0;
+      --flicker-anim: none;
+      --particle-anim: none;
+      --vignette-opacity: 0;
+      --vignette-color: rgba(239,68,68,0);
+      --header-glow: none;
+      --border-pulse: none;
+      --metric-scale: 1;
+      --shake-anim: none;
     }
+    [data-stress="idle"] { --accent: var(--s-idle-a); --accent-2: var(--s-idle-b); --accent-glow: rgba(59,130,246,.18); --accent-ring: rgba(59,130,246,.12); --accent-soft: rgba(59,130,246,.08); }
+    [data-stress="warm"] { --accent: var(--s-warm-a); --accent-2: var(--s-warm-b); --accent-glow: rgba(6,182,212,.18); --accent-ring: rgba(6,182,212,.12); --accent-soft: rgba(6,182,212,.07); --scan-opacity: .03; }
+    [data-stress="hot"] { --accent: var(--s-hot-a); --accent-2: var(--s-hot-b); --accent-glow: rgba(245,158,11,.22); --accent-ring: rgba(245,158,11,.15); --accent-soft: rgba(245,158,11,.08); --scan-opacity: .055; --vignette-opacity: .2; --vignette-color: rgba(245,158,11,.15); }
+    [data-stress="critical"] { --accent: var(--s-crit-a); --accent-2: var(--s-crit-b); --accent-glow: rgba(249,115,22,.28); --accent-ring: rgba(249,115,22,.18); --accent-soft: rgba(249,115,22,.1); --scan-opacity: .08; --vignette-opacity: .35; --vignette-color: rgba(249,115,22,.22); --header-glow: 0 0 40px rgba(249,115,22,.2); --border-pulse: borderPulse 1.4s ease-in-out infinite; }
+    [data-stress="overload"] { --accent: var(--s-over-a); --accent-2: var(--s-over-b); --accent-glow: rgba(239,68,68,.35); --accent-ring: rgba(239,68,68,.22); --accent-soft: rgba(239,68,68,.12); --scan-opacity: .13; --vignette-opacity: .55; --vignette-color: rgba(239,68,68,.3); --header-glow: 0 0 60px rgba(239,68,68,.3); --border-pulse: borderPulse .8s ease-in-out infinite; --flicker-anim: flicker 3.5s linear infinite; --shake-anim: shake 6s ease-in-out infinite; }
+    [data-theme="dark"] { --bg-base: #04091a; --bg-surface: #080f24; --bg-card: #0c1630; --bg-input: rgba(255,255,255,.03); --bg-inset: rgba(0,0,0,.4); --border: rgba(var(--accent-rgb,59,130,246),.14); --border-h: rgba(var(--accent-rgb,59,130,246),.3); --text-1: #e2ecff; --text-2: #8aa4cc; --text-3: #3d5478; --scrollbar: rgba(59,130,246,.2); }
+    [data-theme="light"] { --bg-base: #eef3ff; --bg-surface: #ffffff; --bg-card: #ffffff; --bg-input: rgba(59,130,246,.04); --bg-inset: #f5f8ff; --border: rgba(59,130,246,.16); --border-h: rgba(59,130,246,.4); --text-1: #0a1733; --text-2: #2d4a7a; --text-3: #7090b8; --scrollbar: rgba(59,130,246,.25); }
+    @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.65)} }
+    @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+    @keyframes scan { 0%{top:-100%} 100%{top:200%} }
+    @keyframes borderPulse { 0%,100%{border-color:var(--accent-ring)} 50%{border-color:var(--accent)} }
+    @keyframes flicker { 0%,92%,96%,100%{opacity:1} 93%{opacity:.82} 94%{opacity:.96} 95%{opacity:.75} 97%{opacity:.9} }
+    @keyframes shake { 0%,95%,100%{transform:none} 96%{transform:translate(.4px,-.3px)} 97%{transform:translate(-.4px,.2px)} 98%{transform:translate(.3px,.4px)} 99%{transform:translate(-.2px,-.4px)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes heatwave { 0%{transform:scaleX(1) translateY(0)} 33%{transform:scaleX(1.002) translateY(-.5px)} 66%{transform:scaleX(.999) translateY(.5px)} 100%{transform:scaleX(1) translateY(0)} }
+    @keyframes particleFade { 0%{opacity:0;transform:translateY(0) scale(1)} 20%{opacity:.7} 100%{opacity:0;transform:translateY(-40px) scale(.4)} }
 
-    /* ─── RESET ───────────────────────────────────────────────── */
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-    html { scroll-behavior: smooth; }
-
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body {
-      font-family: 'Vazirmatn', sans-serif;
-      background: var(--bg-base);
-      color: var(--text-1);
-      min-height: 100vh;
-      padding: 24px 20px;
-      direction: rtl;
-      transition: background var(--transition), color var(--transition);
-      background-image:
-        radial-gradient(ellipse 80% 40% at 50% -10%, var(--accent-glow), transparent),
-        radial-gradient(ellipse 40% 60% at 100% 100%, rgba(37,99,235,.05), transparent);
+      font-family:'Vazirmatn',sans-serif;
+      background:var(--bg-base);
+      color:var(--text-1);
+      min-height:100vh;
+      padding:22px 18px;
+      direction:rtl;
+      transition:background var(--t), color var(--t);
+      animation: var(--shake-anim);
+      position:relative;
+      overflow-x:hidden;
     }
-
-    .container { max-width: 1100px; margin: 0 auto; }
-
-    /* ─── HEADER ──────────────────────────────────────────────── */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 14px;
-      padding: 16px 22px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      margin-bottom: 20px;
-      box-shadow: var(--card-shadow);
-      position: sticky;
-      top: 12px;
-      z-index: 50;
-      backdrop-filter: blur(16px);
-    }
-
-    .header-left { display: flex; align-items: center; gap: 14px; }
-
-    .logo-wrap {
-      width: 44px; height: 44px;
-      border-radius: var(--radius-md);
-      background: var(--accent-soft);
-      border: 1px solid var(--logo-ring);
-      display: grid; place-items: center;
-      font-size: 22px;
-      position: relative;
-      overflow: hidden;
-    }
-    .logo-wrap::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,.05));
-    }
-
-    .header h1 {
-      font-size: 17px; font-weight: 800;
-      letter-spacing: -.03em;
-      color: var(--text-1);
-    }
-    .header .subtitle {
-      display: block;
-      font-size: 10px; font-weight: 500;
-      color: var(--text-3);
-      letter-spacing: .04em;
-      margin-top: 1px;
-    }
-
-    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-    /* ─── THEME TOGGLE ────────────────────────────────────────── */
-    .theme-toggle {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--accent-soft);
-      color: var(--accent);
-      cursor: pointer;
-      display: grid; place-items: center;
-      font-size: 16px;
-      transition: all var(--transition);
-    }
-    .theme-toggle:hover { border-color: var(--border-hover); background: var(--accent-glow); }
-
-    /* ─── STATUS BADGE ────────────────────────────────────────── */
-    .status-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: .02em;
-      transition: all var(--transition);
-    }
-    .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .status-badge.online  { background: rgba(34,197,94,.1);  color: var(--green); border: 1px solid rgba(34,197,94,.2); }
-    .status-badge.online .dot  { background: var(--green); animation: blink 2s infinite; }
-    .status-badge.offline { background: rgba(239,68,68,.1); color: var(--red);   border: 1px solid rgba(239,68,68,.2); }
-    .status-badge.offline .dot { background: var(--red); }
-    .status-badge.connecting { background: rgba(245,158,11,.1); color: var(--amber); border: 1px solid rgba(245,158,11,.2); }
-    .status-badge.connecting .dot { background: var(--amber); animation: blink .8s infinite; }
-
-    @keyframes blink {
-      0%,100% { opacity:1; transform:scale(1); }
-      50%      { opacity:.3; transform:scale(.7); }
-    }
-
-    /* ─── BUTTONS ─────────────────────────────────────────────── */
-    .btn {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 8px 18px;
-      border-radius: var(--radius-sm);
-      border: none;
-      font-family: inherit;
-      font-size: 12px; font-weight: 700;
-      cursor: pointer;
-      transition: all var(--transition);
-      white-space: nowrap;
-    }
-    .btn:hover  { transform: translateY(-1px); }
-    .btn:active { transform: scale(.97); }
-
-    .btn-primary {
-      background: var(--btn-primary-bg);
-      color: #fff;
-      box-shadow: var(--btn-primary-shadow);
-    }
-    .btn-primary:hover { box-shadow: 0 6px 26px rgba(59,130,246,.55); }
-
-    .btn-start {
-      background: linear-gradient(135deg, #16a34a, #15803d);
-      color: #fff;
-      box-shadow: 0 3px 14px rgba(22,163,74,.35);
-    }
-    .btn-start:hover { box-shadow: 0 5px 22px rgba(22,163,74,.5); }
-
-    .btn-stop {
-      background: linear-gradient(135deg, #dc2626, #991b1b);
-      color: #fff;
-      box-shadow: 0 3px 14px rgba(220,38,38,.3);
-    }
-    .btn-stop:hover { box-shadow: 0 5px 22px rgba(220,38,38,.45); }
-
-    .btn-ghost {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid var(--border);
-    }
-    .btn-ghost:hover { background: var(--accent-glow); border-color: var(--border-hover); }
-
-    /* ─── CARDS ───────────────────────────────────────────────── */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 18px 22px;
-      margin-bottom: 16px;
-      box-shadow: var(--card-shadow);
-      transition: border-color var(--transition), box-shadow var(--transition);
-    }
-    .card:hover { border-color: var(--border-hover); }
-
-    .card-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .card-title {
-      font-size: 10px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .1em;
-      color: var(--text-3);
-      display: flex; align-items: center; gap: 7px;
-    }
-    .card-title .icon-chip {
-      width: 24px; height: 24px;
-      border-radius: 6px;
-      background: var(--accent-soft);
-      display: grid; place-items: center;
-      font-size: 12px;
-    }
-
-    /* ─── INPUTS ──────────────────────────────────────────────── */
-    .input-group {
-      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-      margin-bottom: 10px;
-    }
-    .input-group:last-child { margin-bottom: 0; }
-
-    input[type="text"], input[type="number"] {
-      flex: 1; min-width: 130px;
-      padding: 9px 13px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-      background: var(--bg-input);
-      color: var(--text-1);
-      font-size: 12px; font-family: inherit;
-      outline: none;
-      transition: all var(--transition);
-    }
-    input[type="text"]:focus, input[type="number"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-      background: var(--accent-soft);
-    }
-    input::placeholder { color: var(--text-3); }
-    input[type="number"] { max-width: 90px; min-width: 70px; }
-
-    .status-hint {
-      font-size: 11px; color: var(--text-3); margin-top: 6px;
-    }
-
-    /* ─── METRICS GRID ────────────────────────────────────────── */
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .metric {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 16px 18px;
-      box-shadow: var(--metric-glow);
-      transition: all var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-    .metric::before {
-      content: '';
-      position: absolute; top: 0; right: 0;
-      width: 60px; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent));
-      opacity: .5;
-    }
-    .metric:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-2px);
-      box-shadow: var(--metric-glow), 0 0 0 1px var(--border-hover);
-    }
-
-    .metric-label {
-      font-size: 9px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .1em;
-      color: var(--text-3);
-      margin-bottom: 6px;
-    }
-    .metric-value {
-      font-size: 24px; font-weight: 800;
-      color: var(--text-1);
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
-    }
-    .metric-value .unit {
-      font-size: 12px; font-weight: 500;
-      color: var(--text-3); margin-right: 2px;
-    }
-
-    /* ─── PROGRESS BAR ────────────────────────────────────────── */
-    .progress-track {
-      width: 100%; height: 5px;
-      background: rgba(255,255,255,.05);
-      border-radius: 3px;
-      margin-top: 9px;
-      overflow: hidden;
-    }
-    [data-theme="light"] .progress-track { background: rgba(59,130,246,.08); }
-
-    .progress-fill {
-      height: 100%; border-radius: 3px;
-      transition: width .9s cubic-bezier(.4,0,.2,1);
-    }
-    .progress-fill.cpu { background: linear-gradient(90deg, var(--blue-400), var(--blue-300)); }
-    .progress-fill.ram { background: linear-gradient(90deg, #a78bfa, #818cf8); }
-
-    .metric-sub {
-      font-size: 9px; color: var(--text-3); margin-top: 4px;
-    }
-
-    /* ─── INFO STRIP ──────────────────────────────────────────── */
-    .info-strip {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 12px 18px;
-      margin-bottom: 16px;
-      box-shadow: var(--card-shadow);
-    }
-    .info-strip-inner {
-      display: flex; flex-wrap: wrap; gap: 16px;
-    }
-    .info-item {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 11px; color: var(--text-3);
-    }
-    .info-item strong { color: var(--text-2); font-weight: 600; }
-
-    /* ─── CHART ───────────────────────────────────────────────── */
-    .chart-wrap {
-      width: 100%; height: 220px; position: relative;
-    }
-
-    /* ─── LOGS ────────────────────────────────────────────────── */
-    .log-box {
-      height: 320px; overflow-y: auto;
-      background: var(--bg-inset);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; line-height: 1.75;
-    }
-    .log-box::-webkit-scrollbar { width: 4px; }
-    .log-box::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
-    .log-box::-webkit-scrollbar-track { background: transparent; }
-
-    .log-empty { color: var(--text-3); text-align: center; padding: 60px 0; font-family: 'Vazirmatn', sans-serif; }
-
-    .log-line {
-      display: flex; gap: 8px; align-items: baseline;
-      padding: 2px 0;
-      border-bottom: 1px solid rgba(255,255,255,.025);
-    }
-    [data-theme="light"] .log-line { border-bottom-color: rgba(59,130,246,.06); }
-
-    .log-ts { color: var(--text-3); flex-shrink: 0; font-size: 10px; }
-    .log-msg { word-break: break-all; }
-    .log-line.success .log-msg { color: var(--green); }
-    .log-line.error   .log-msg { color: var(--red); }
-    .log-line.warning .log-msg { color: var(--amber); }
-    .log-line.info    .log-msg { color: var(--blue-300); }
-    [data-theme="light"] .log-line.info .log-msg { color: var(--blue-600); }
-    .log-line.default .log-msg { color: var(--text-2); }
-
-    /* ─── FOOTER ──────────────────────────────────────────────── */
-    .footer {
-      text-align: center;
-      padding: 16px 0 6px;
-      border-top: 1px solid var(--border);
-      margin-top: 20px;
-      font-size: 10px; color: var(--text-3);
-      letter-spacing: .04em;
-    }
-    .footer span { color: var(--accent); }
-
-    /* ─── DIVIDER ─────────────────────────────────────────────── */
-    .section-label {
-      font-size: 9px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .12em;
-      color: var(--text-3);
-      margin-bottom: 10px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .section-label::after {
-      content: ''; flex: 1; height: 1px;
-      background: var(--border);
-    }
-
-    /* ─── RESPONSIVE ──────────────────────────────────────────── */
-    @media (max-width: 640px) {
-      body { padding: 14px 12px; }
-      .header { padding: 13px 16px; }
-      .metrics { grid-template-columns: repeat(2, 1fr); }
-      .metric-value { font-size: 20px; }
-      .chart-wrap { height: 170px; }
-      .log-box { height: 240px; }
-    }
-    @media (max-width: 360px) {
-      .metrics { grid-template-columns: 1fr; }
-    }
-
-    /* ─── ACCENT ANIMATIONS ────────────────────────────────────── */
-    @keyframes shimmer {
-      0%   { background-position: -200% center; }
-      100% { background-position:  200% center; }
-    }
-    .hashrate-glow {
-      background: linear-gradient(90deg, var(--text-1) 30%, var(--accent) 50%, var(--text-1) 70%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: shimmer 3s linear infinite;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-    }
+    body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:0; background:radial-gradient(ellipse 70% 35% at 50% -5%, var(--accent-glow), transparent), radial-gradient(ellipse 35% 55% at 95% 95%, rgba(59,130,246,.04), transparent); transition:background 1.2s ease; }
+    body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:1; background:radial-gradient(ellipse 90% 90% at 50% 50%, transparent 55%, var(--vignette-color) 100%); opacity:var(--vignette-opacity); transition:opacity 1s ease, background 1.2s ease; }
+    .scanline-wrap { position:fixed; inset:0; pointer-events:none; z-index:2; overflow:hidden; }
+    .scanline { position:absolute; left:0; right:0; height:3px; background:linear-gradient(180deg, transparent, rgba(var(--accent-rgb,59,130,246),.8), transparent); opacity:var(--scan-opacity); animation: scan 4s linear infinite; transition: opacity 1.5s ease; }
+    .container { max-width:1080px; margin:0 auto; position:relative; z-index:3; animation: var(--flicker-anim); }
+    .header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding:14px 20px; background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--r-lg); margin-bottom:18px; box-shadow: var(--header-glow, none); animation: var(--border-pulse); transition:border-color var(--t), box-shadow 1s ease; position:sticky; top:10px; z-index:50; backdrop-filter:blur(20px); }
+    .logo-ring { width:42px; height:42px; border-radius:12px; background:var(--accent-soft); border:1px solid var(--accent-ring); display:grid; place-items:center; font-size:21px; flex-shrink:0; transition:background var(--t), border-color var(--t), box-shadow var(--t); position:relative; overflow:hidden; }
+    [data-stress="critical"] .logo-ring, [data-stress="overload"] .logo-ring { box-shadow:0 0 18px var(--accent-glow); }
+    .header h1 { font-size:16px; font-weight:800; letter-spacing:-.03em; color:var(--text-1); transition:color var(--t); }
+    .header .subtitle { display:block; font-size:9px; font-weight:500; color:var(--text-3); letter-spacing:.05em; margin-top:1px; transition:color var(--t); }
+    .header-left { display:flex; align-items:center; gap:12px; }
+    .header-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .stress-label { font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:3px 9px; border-radius:20px; background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent-ring); transition:all var(--t); white-space:nowrap; }
+    .theme-btn { width:34px; height:34px; border-radius:9px; border:1px solid var(--border); background:var(--accent-soft); color:var(--accent); cursor:pointer; display:grid; place-items:center; font-size:15px; transition:all var(--t); }
+    .theme-btn:hover { border-color:var(--border-h); }
+    .status-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:20px; font-size:10px; font-weight:700; letter-spacing:.02em; transition:all var(--t); }
+    .dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    .status-badge.online { background:rgba(34,197,94,.1); color:#22c55e; border:1px solid rgba(34,197,94,.2); }
+    .status-badge.online .dot { background:#22c55e; animation:blink 2s infinite; }
+    .status-badge.offline { background:rgba(239,68,68,.1); color:#ef4444; border:1px solid rgba(239,68,68,.2); }
+    .status-badge.offline .dot { background:#ef4444; }
+    .status-badge.connecting { background:rgba(245,158,11,.1); color:#f59e0b; border:1px solid rgba(245,158,11,.2); }
+    .status-badge.connecting .dot { background:#f59e0b; animation:blink .7s infinite; }
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border-radius:var(--r-sm); border:none; font-family:inherit; font-size:11px; font-weight:700; cursor:pointer; transition:all var(--t); white-space:nowrap; }
+    .btn:hover { transform:translateY(-1px); }
+    .btn:active { transform:scale(.97); }
+    .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff; box-shadow:0 3px 14px var(--accent-glow); }
+    .btn-primary:hover { box-shadow:0 5px 20px var(--accent-glow); }
+    .btn-start { background:linear-gradient(135deg,#16a34a,#15803d); color:#fff; box-shadow:0 3px 12px rgba(22,163,74,.3); }
+    .btn-start:hover { box-shadow:0 5px 18px rgba(22,163,74,.4); }
+    .btn-stop { background:linear-gradient(135deg,#dc2626,#991b1b); color:#fff; box-shadow:0 3px 12px rgba(220,38,38,.3); }
+    .btn-stop:hover { box-shadow:0 5px 18px rgba(220,38,38,.4); }
+    .btn-ghost { background:var(--accent-soft); color:var(--accent); border:1px solid var(--border); }
+    .btn-ghost:hover { border-color:var(--border-h); }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-md); padding:16px 20px; margin-bottom:14px; transition:border-color var(--t), background var(--t), box-shadow .8s ease; position:relative; overflow:hidden; }
+    .card:hover { border-color:var(--border-h); }
+    .card::before { content:''; position:absolute; top:0; right:0; left:0; height:1px; background:linear-gradient(90deg,transparent 10%,var(--accent) 50%,transparent 90%); opacity:.35; transition:opacity var(--t), background var(--t); }
+    [data-stress="critical"] .card::before, [data-stress="overload"] .card::before { opacity:.7; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .card-title { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); display:flex; align-items:center; gap:7px; transition:color var(--t); }
+    .chip { width:22px; height:22px; border-radius:6px; background:var(--accent-soft); display:grid; place-items:center; font-size:11px; transition:background var(--t); }
+    .input-group { display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-bottom:9px; }
+    .input-group:last-of-type { margin-bottom:0; }
+    input[type="text"], input[type="number"] { flex:1; min-width:120px; padding:8px 12px; border-radius:var(--r-sm); border:1px solid var(--border); background:var(--bg-input); color:var(--text-1); font-size:12px; font-family:inherit; outline:none; transition:all var(--t); }
+    input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-ring); background:var(--accent-soft); }
+    input::placeholder { color:var(--text-3); }
+    input[type="number"] { max-width:85px; min-width:68px; }
+    .hint { font-size:10px; color:var(--text-3); margin-top:6px; transition:color var(--t); }
+    .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:11px; margin-bottom:14px; }
+    .metric { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-md); padding:15px 16px; transition:all var(--t), box-shadow .8s ease; position:relative; overflow:hidden; }
+    .metric:hover { transform:translateY(-2px); border-color:var(--border-h); }
+    .metric::after { content:''; position:absolute; top:0; left:0; width:100%; height:2px; background:linear-gradient(90deg, transparent, var(--accent), transparent); opacity:.5; transition:background var(--t), opacity var(--t); }
+    [data-stress="critical"] .metric::after, [data-stress="overload"] .metric::after { opacity:1; }
+    .metric.cpu-metric[data-level="high"], .metric.ram-metric[data-level="high"] { box-shadow:0 0 20px var(--accent-glow); border-color:var(--border-h); }
+    .metric-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); margin-bottom:5px; transition:color var(--t); }
+    .metric-value { font-size:22px; font-weight:800; color:var(--text-1); font-variant-numeric:tabular-nums; line-height:1; transition:color var(--t); }
+    .unit { font-size:11px; font-weight:500; color:var(--text-3); }
+    .hashrate-shimmer { background:linear-gradient(90deg,var(--text-1) 30%,var(--accent) 50%,var(--text-1) 70%); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:shimmer 2.5s linear infinite; transition:background var(--t); }
+    .bar-track { width:100%; height:5px; background:rgba(255,255,255,.05); border-radius:3px; margin-top:8px; overflow:hidden; }
+    [data-theme="light"] .bar-track { background:rgba(59,130,246,.07); }
+    .bar-fill { height:100%; border-radius:3px; transition:width .9s cubic-bezier(.4,0,.2,1), background 1s ease; }
+    .bar-fill.cpu { background:linear-gradient(90deg,#60a5fa,#93c5fd); }
+    .bar-fill.ram { background:linear-gradient(90deg,#a78bfa,#c4b5fd); }
+    [data-stress="warm"] .bar-fill.cpu { background:linear-gradient(90deg,#06b6d4,#67e8f9); }
+    [data-stress="hot"] .bar-fill.cpu { background:linear-gradient(90deg,#f59e0b,#fcd34d); }
+    [data-stress="critical"] .bar-fill.cpu { background:linear-gradient(90deg,#f97316,#fb923c); }
+    [data-stress="overload"] .bar-fill.cpu { background:linear-gradient(90deg,#ef4444,#f87171); }
+    .bar-sub { font-size:9px; color:var(--text-3); margin-top:3px; }
+    .info-strip { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-md); padding:11px 16px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:14px; transition:border-color var(--t); }
+    .info-item { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-3); }
+    .info-item b { color:var(--text-2); font-weight:600; }
+    .chart-wrap { width:100%; height:210px; position:relative; }
+    .log-box { height:300px; overflow-y:auto; background:var(--bg-inset); border-radius:var(--r-sm); padding:9px 13px; font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.75; }
+    .log-box::-webkit-scrollbar { width:3px; }
+    .log-box::-webkit-scrollbar-thumb { background:var(--scrollbar); border-radius:2px; }
+    .log-empty { color:var(--text-3); text-align:center; padding:50px 0; font-family:'Vazirmatn',sans-serif; }
+    .log-line { display:flex; gap:8px; align-items:baseline; padding:1px 0; border-bottom:1px solid rgba(255,255,255,.02); }
+    [data-theme="light"] .log-line { border-bottom-color:rgba(59,130,246,.05); }
+    .log-ts { color:var(--text-3); flex-shrink:0; font-size:10px; }
+    .log-msg { word-break:break-all; }
+    .log-line.success .log-msg { color:#22c55e; }
+    .log-line.error .log-msg { color:#ef4444; }
+    .log-line.warning .log-msg { color:#f59e0b; }
+    .log-line.info .log-msg { color:var(--accent); }
+    .log-line.default .log-msg { color:var(--text-2); }
+    .heatwave-overlay { position:fixed; inset:0; pointer-events:none; z-index:4; opacity:0; transition:opacity 1s ease; }
+    [data-stress="hot"] .heatwave-overlay { opacity:.3; }
+    [data-stress="critical"] .heatwave-overlay { opacity:.6; }
+    [data-stress="overload"] .heatwave-overlay { opacity:1; }
+    .heatwave-overlay .wave { position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--accent-glow),transparent); animation:heatwave 2s ease-in-out infinite; }
+    .heatwave-overlay .wave:nth-child(1) { top:20%; animation-delay:0s; }
+    .heatwave-overlay .wave:nth-child(2) { top:45%; animation-delay:.6s; }
+    .heatwave-overlay .wave:nth-child(3) { top:72%; animation-delay:1.2s; }
+    .particles { position:fixed; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
+    .particle { position:absolute; width:3px; height:3px; border-radius:50%; background:var(--accent); opacity:0; }
+    [data-stress="overload"] .particle { animation:particleFade var(--dur,3s) var(--delay,0s) linear infinite; }
+    .stress-meter { display:flex; align-items:center; gap:10px; padding:8px 16px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-md); margin-bottom:14px; transition:all var(--t); }
+    .stress-label-txt { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); flex-shrink:0; }
+    .stress-segments { display:flex; gap:3px; flex:1; }
+    .seg { flex:1; height:6px; border-radius:2px; background:rgba(255,255,255,.07); transition:background .6s ease; }
+    [data-theme="light"] .seg { background:rgba(59,130,246,.08); }
+    .seg.lit { background:var(--accent); }
+    .stress-pct { font-size:11px; font-weight:800; color:var(--accent); min-width:32px; text-align:left; font-variant-numeric:tabular-nums; }
+    .demo-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-md); padding:14px 18px; margin-bottom:14px; }
+    .demo-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .demo-row:last-child { margin-bottom:0; }
+    .demo-lbl { font-size:10px; color:var(--text-3); font-weight:600; width:36px; flex-shrink:0; }
+    input[type="range"] { flex:1; height:4px; accent-color:var(--accent); cursor:pointer; }
+    .demo-val { font-size:11px; font-weight:800; color:var(--accent); min-width:36px; font-variant-numeric:tabular-nums; }
+    .footer { text-align:center; padding:14px 0 4px; border-top:1px solid var(--border); margin-top:18px; font-size:9px; color:var(--text-3); letter-spacing:.05em; transition:border-color var(--t); }
+    .footer span { color:var(--accent); }
+    @media(max-width:640px){ body{padding:12px 10px;} .metrics{grid-template-columns:repeat(2,1fr);} .metric-value{font-size:18px;} .chart-wrap{height:170px;} .log-box{height:220px;} }
+    @media(max-width:360px){ .metrics{grid-template-columns:1fr;} }
+    @media(prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important;transition:none!important;} }
   </style>
 </head>
 <body>
 
+<div class="heatwave-overlay"><div class="wave"></div><div class="wave"></div><div class="wave"></div></div>
+<div class="scanline-wrap"><div class="scanline"></div></div>
+<div class="particles" id="particles"></div>
+
 <div class="container">
 
-  <!-- ─── HEADER ─── -->
   <header class="header">
     <div class="header-left">
-      <div class="logo-wrap">⚡</div>
-      <div>
-        <h1>Full Power Mining</h1>
-        <span class="subtitle">Heavy Mode · 2 Threads</span>
-      </div>
+      <div class="logo-ring">⚡</div>
+      <div><h1>Full Power Mining</h1><span class="subtitle">Heavy Mode · 2 Threads</span></div>
     </div>
     <div class="header-right">
-      <span class="status-badge offline" id="statusBadge">
-        <span class="dot" id="statusDot"></span>
-        <span id="statusText">غیرفعال</span>
-      </span>
-      <button class="theme-toggle" id="themeToggle" title="تغییر تم" onclick="toggleTheme()">🌙</button>
-      <button class="btn btn-ghost" onclick="refreshAll()">⟳ بروزرسانی</button>
+      <span class="stress-label" id="stressLabel">IDLE</span>
+      <span class="status-badge offline" id="statusBadge"><span class="dot"></span><span id="statusText">غیرفعال</span></span>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+      <button class="btn btn-ghost" onclick="refreshAll()">⟳</button>
     </div>
   </header>
 
-  <!-- ─── CONNECTION ─── -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        <span class="icon-chip">🔗</span>
-        اتصال به بک‌اند
-      </div>
+  <div class="stress-meter">
+    <span class="stress-label-txt">بار سیستم</span>
+    <div class="stress-segments" id="stressSegs">
+      <div class="seg" data-i="0"></div><div class="seg" data-i="1"></div>
+      <div class="seg" data-i="2"></div><div class="seg" data-i="3"></div>
+      <div class="seg" data-i="4"></div><div class="seg" data-i="5"></div>
+      <div class="seg" data-i="6"></div><div class="seg" data-i="7"></div>
+      <div class="seg" data-i="8"></div><div class="seg" data-i="9"></div>
     </div>
+    <div class="stress-pct" id="stressPct">0%</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title"><span class="chip">🔗</span>اتصال به بک‌اند</div></div>
     <div class="input-group">
-      <input type="text" id="backendUrl" placeholder="آدرس بک‌اند (مثال: http://localhost:8080)" value="http://localhost:8080" />
+      <input type="text" id="backendUrl" placeholder="آدرس بک‌اند" value="http://localhost:8080"/>
       <button class="btn btn-primary" onclick="connectBackend()">🔌 اتصال</button>
     </div>
-    <div class="status-hint" id="connectionStatus">در انتظار اتصال…</div>
+    <div class="hint" id="connectionStatus">در انتظار اتصال…</div>
   </div>
 
-  <!-- ─── MINER CONTROL ─── -->
+  <div class="demo-panel">
+    <div class="card-title" style="margin-bottom:12px;"><span class="chip">🎚️</span>شبیه‌ساز بار — فقط برای پیش‌نمایش</div>
+    <div class="demo-row"><span class="demo-lbl">CPU</span><input type="range" id="cpuSlider" min="0" max="100" value="12" oninput="updateDemo()"/><span class="demo-val" id="cpuSliderVal">12%</span></div>
+    <div class="demo-row"><span class="demo-lbl">RAM</span><input type="range" id="ramSlider" min="0" max="100" value="28" oninput="updateDemo()"/><span class="demo-val" id="ramSliderVal">28%</span></div>
+  </div>
+
   <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        <span class="icon-chip">⚙️</span>
-        کنترل ماینر
-      </div>
-    </div>
-    <div class="input-group">
-      <input type="text" id="walletInput" placeholder="آدرس کیف پول" value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto" />
-    </div>
-    <div class="input-group">
-      <input type="text" id="serverInput" placeholder="آدرس استخر" value="pool.supportxmr.com" />
-      <input type="number" id="portInput" placeholder="پورت" value="443" />
-    </div>
-    <div class="input-group">
-      <button class="btn btn-start" onclick="startMiner()">⚡ شروع ماینینگ</button>
-      <button class="btn btn-stop"  onclick="stopMiner()">⏹ توقف</button>
-    </div>
-    <div class="status-hint" id="statusMsg"></div>
+    <div class="card-header"><div class="card-title"><span class="chip">⚙️</span>کنترل ماینر</div></div>
+    <div class="input-group"><input type="text" id="walletInput" placeholder="آدرس کیف پول" value="438W5YmNBCcaU3xmsJAgxFjieLMbNBsRq5BF3Kk89JGLgaMSXyfYicaZ7yA37ENS2TJBjDrZZr5SbZF4kZT5y1fpSP7RRto"/></div>
+    <div class="input-group"><input type="text" id="serverInput" placeholder="آدرس استخر" value="pool.supportxmr.com"/><input type="number" id="portInput" placeholder="پورت" value="443"/></div>
+    <div class="input-group"><button class="btn btn-start" onclick="startMiner()">⚡ شروع ماینینگ</button><button class="btn btn-stop" onclick="stopMiner()">⏹ توقف</button></div>
+    <div class="hint" id="statusMsg"></div>
   </div>
 
-  <!-- ─── METRICS ─── -->
-  <div class="section-label">شاخص‌های لحظه‌ای</div>
   <div class="metrics">
-
-    <div class="metric">
-      <div class="metric-label">⚡ هش‌ریت</div>
-      <div class="metric-value" id="hashrate">
-        <span class="hashrate-glow">--</span>
-        <span class="unit">H/s</span>
-      </div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">✅ پذیرفته</div>
-      <div class="metric-value" id="accepted">--</div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">❌ رد شده</div>
-      <div class="metric-value" id="rejected">--</div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">🕒 آپتایم</div>
-      <div class="metric-value" id="uptime">--</div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">🧵 حالت</div>
-      <div class="metric-value" id="modeDisplay" style="font-size:18px;">heavy</div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">🧠 CPU</div>
-      <div class="metric-value" id="cpuUsage">--%</div>
-      <div class="progress-track">
-        <div class="progress-fill cpu" id="cpuFill" style="width:0%"></div>
-      </div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">💾 RAM</div>
-      <div class="metric-value" id="ramUsage">--%</div>
-      <div class="progress-track">
-        <div class="progress-fill ram" id="ramFill" style="width:0%"></div>
-      </div>
-      <div class="metric-sub" id="ramDetail"></div>
-    </div>
-
+    <div class="metric"><div class="metric-label">⚡ هش‌ریت</div><div class="metric-value"><span class="hashrate-shimmer" id="hashrate">--</span><span class="unit"> H/s</span></div></div>
+    <div class="metric"><div class="metric-label">✅ پذیرفته</div><div class="metric-value" id="accepted">--</div></div>
+    <div class="metric"><div class="metric-label">❌ رد شده</div><div class="metric-value" id="rejected">--</div></div>
+    <div class="metric"><div class="metric-label">🕒 آپتایم</div><div class="metric-value" id="uptime">--</div></div>
+    <div class="metric"><div class="metric-label">🧵 حالت</div><div class="metric-value" id="modeDisplay" style="font-size:17px">heavy</div></div>
+    <div class="metric cpu-metric" id="cpuMetric"><div class="metric-label">🧠 CPU</div><div class="metric-value" id="cpuUsage">--%</div><div class="bar-track"><div class="bar-fill cpu" id="cpuFill" style="width:0%"></div></div></div>
+    <div class="metric ram-metric" id="ramMetric"><div class="metric-label">💾 RAM</div><div class="metric-value" id="ramUsage">--%</div><div class="bar-track"><div class="bar-fill ram" id="ramFill" style="width:0%"></div></div><div class="bar-sub" id="ramDetail"></div></div>
   </div>
 
-  <!-- ─── INFO STRIP ─── -->
   <div class="info-strip">
-    <div class="info-strip-inner">
-      <div class="info-item">🔑 کیف پول: <strong id="walletDisplay">--</strong></div>
-      <div class="info-item">🌐 استخر: <strong id="serverDisplay">--</strong></div>
-      <div class="info-item">🔌 پورت: <strong id="portDisplay">--</strong></div>
-      <div class="info-item">⚡ هسته: <strong id="threadsDisplay">2</strong></div>
-    </div>
+    <div class="info-item">🔑 کیف پول: <b id="walletDisplay">--</b></div>
+    <div class="info-item">🌐 استخر: <b id="serverDisplay">--</b></div>
+    <div class="info-item">🔌 پورت: <b id="portDisplay">--</b></div>
+    <div class="info-item">⚡ هسته: <b id="threadsDisplay">2</b></div>
   </div>
 
-  <!-- ─── CHART ─── -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><span class="icon-chip">📈</span>نمودار هش‌ریت</div>
-    </div>
-    <div class="chart-wrap">
-      <canvas id="hashrateChart"></canvas>
-    </div>
-  </div>
+  <div class="card"><div class="card-header"><div class="card-title"><span class="chip">📈</span>نمودار هش‌ریت</div></div><div class="chart-wrap"><canvas id="hashrateChart"></canvas></div></div>
 
-  <!-- ─── LOGS ─── -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><span class="icon-chip">📋</span>لاگ‌ها</div>
-      <button class="btn btn-ghost" style="padding:5px 11px;font-size:10px;" onclick="clearLogs()">پاک کردن</button>
-    </div>
-    <div class="log-box" id="logContainer">
-      <div class="log-empty">⏳ در انتظار اتصال…</div>
-    </div>
-  </div>
+  <div class="card"><div class="card-header"><div class="card-title"><span class="chip">📋</span>لاگ‌ها</div><button class="btn btn-ghost" style="padding:4px 10px;font-size:10px" onclick="clearLogs()">پاک کردن</button></div><div class="log-box" id="logContainer"><div class="log-empty">⏳ در انتظار اتصال…</div></div></div>
 
-  <footer class="footer">
-    ⚡ Full Power Mode · Heavy ·
-    <span id="liveStatus">در انتظار اتصال</span>
-  </footer>
-
+  <footer class="footer">⚡ Full Power Mode · Heavy · <span id="liveStatus">در انتظار اتصال</span></footer>
 </div>
 
-<!-- ─── CHART + THEME SCRIPT ─── -->
 <script>
-  /* ── Theme ── */
-  const html = document.documentElement;
-  const themeBtn = document.getElementById('themeToggle');
+/* ═══════════════════════════════════════════════
+   بخش ۱: تم (Theme)
+═══════════════════════════════════════════════ */
+const html = document.documentElement;
+const themeBtn = document.getElementById('themeBtn');
+function setTheme(t) {
+  html.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('fpm-theme', t);
+  if (window._chart) updateChartColors();
+}
+function toggleTheme() { setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+const savedTheme = localStorage.getItem('fpm-theme') || (window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark');
+setTheme(savedTheme);
 
-  function setTheme(t) {
-    html.setAttribute('data-theme', t);
-    themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
-    localStorage.setItem('fpm-theme', t);
-    if (window._chart) updateChartColors();
+/* ═══════════════════════════════════════════════
+   بخش ۲: موتور استرس (Stress Engine)
+═══════════════════════════════════════════════ */
+const STATES = ['idle', 'warm', 'hot', 'critical', 'overload'];
+const THRESHOLDS = [0, 40, 65, 80, 93];
+const LABELS = ['IDLE', 'WARM', 'HOT', 'CRITICAL', 'OVERLOAD'];
+let _currentStress = 'idle';
+let _cpu = 0, _ram = 0;
+
+function getStressLevel(cpu, ram) {
+  const combined = cpu * 0.65 + ram * 0.35;
+  for (let i = THRESHOLDS.length - 1; i >= 0; i--) {
+    if (combined >= THRESHOLDS[i]) return i;
+  }
+  return 0;
+}
+
+function applyStress(cpu, ram) {
+  _cpu = cpu; _ram = ram;
+  const idx = getStressLevel(cpu, ram);
+  const state = STATES[idx];
+  const combined = Math.round(cpu * 0.65 + ram * 0.35);
+
+  if (state !== _currentStress) {
+    _currentStress = state;
+    html.setAttribute('data-stress', state);
+    document.getElementById('stressLabel').textContent = LABELS[idx];
   }
 
-  function toggleTheme() {
-    setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  const segs = document.querySelectorAll('.seg');
+  const litCount = Math.round(combined / 10);
+  segs.forEach((s, i) => s.classList.toggle('lit', i < litCount));
+  document.getElementById('stressPct').textContent = combined + '%';
+
+  document.getElementById('cpuMetric').setAttribute('data-level', cpu > 70 ? 'high' : 'normal');
+  document.getElementById('ramMetric').setAttribute('data-level', ram > 70 ? 'high' : 'normal');
+
+  document.getElementById('cpuUsage').textContent = cpu + '%';
+  document.getElementById('ramUsage').textContent = ram + '%';
+  document.getElementById('cpuFill').style.width = cpu + '%';
+  document.getElementById('ramFill').style.width = ram + '%';
+
+  updateParticles(idx);
+  if (window._chart) updateChartColors();
+}
+
+function updateParticles(stressIdx) {
+  const container = document.getElementById('particles');
+  if (stressIdx < 4) { container.innerHTML = ''; return; }
+  if (container.children.length > 0) return;
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `left:${Math.random()*100}%;top:${40+Math.random()*50}%;--dur:${2.5+Math.random()*2.5}s;--delay:${Math.random()*3}s;`;
+    container.appendChild(p);
   }
+}
 
-  // Load saved preference
-  const saved = localStorage.getItem('fpm-theme') ||
-    (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-  setTheme(saved);
+/* ── دمو اسلایدر ── */
+function updateDemo() {
+  const cpu = parseInt(document.getElementById('cpuSlider').value);
+  const ram = parseInt(document.getElementById('ramSlider').value);
+  document.getElementById('cpuSliderVal').textContent = cpu + '%';
+  document.getElementById('ramSliderVal').textContent = ram + '%';
+  applyStress(cpu, ram);
+}
+updateDemo();
 
-  /* ── Chart ── */
-  function chartColors() {
-    const dark = html.getAttribute('data-theme') === 'dark';
-    return {
-      line:  dark ? 'rgba(96,165,250,1)'   : 'rgba(37,99,235,1)',
-      fill:  dark ? 'rgba(59,130,246,.12)' : 'rgba(59,130,246,.08)',
-      grid:  dark ? 'rgba(59,130,246,.07)' : 'rgba(59,130,246,.08)',
-      text:  dark ? '#4d6899'              : '#7a9ac8',
+/* ═══════════════════════════════════════════════
+   بخش ۳: نمودار (Chart)
+═══════════════════════════════════════════════ */
+const ACCENT_MAP = { idle: '#3b82f6', warm: '#06b6d4', hot: '#f59e0b', critical: '#f97316', overload: '#ef4444' };
+
+function chartColors() {
+  const a = ACCENT_MAP[_currentStress] || '#3b82f6';
+  const dark = html.getAttribute('data-theme') === 'dark';
+  return {
+    line: a,
+    fill: a.replace(')', ',0.1)').replace('rgb', 'rgba'),
+    grid: dark ? 'rgba(59,130,246,.06)' : 'rgba(59,130,246,.07)',
+    text: dark ? '#3d5478' : '#7090b8',
+  };
+}
+
+let _chart;
+function initChart() {
+  const c = chartColors();
+  const ctx = document.getElementById('hashrateChart').getContext('2d');
+  _chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: [], datasets: [{ data: [], borderColor: c.line, backgroundColor: c.fill, borderWidth: 2, fill: true, tension: .45, pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: c.line }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 500 },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1630', titleColor: '#8aa4cc', bodyColor: c.line, borderColor: 'rgba(59,130,246,.2)', borderWidth: 1, padding: 9, displayColors: false, callbacks: { label: ctx => ctx.parsed.y + ' H/s' } } },
+      scales: { x: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 10 } } }, y: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 10 } }, beginAtZero: true } }
+    }
+  });
+  window._chart = _chart;
+}
+function updateChartColors() {
+  const c = chartColors();
+  const ds = _chart.data.datasets[0];
+  ds.borderColor = c.line;
+  ds.backgroundColor = c.fill;
+  _chart.options.scales.x.grid.color = c.grid;
+  _chart.options.scales.x.ticks.color = c.text;
+  _chart.options.scales.y.grid.color = c.grid;
+  _chart.options.scales.y.ticks.color = c.text;
+  _chart.update('none');
+}
+document.addEventListener('DOMContentLoaded', initChart);
+
+/* ═══════════════════════════════════════════════
+   بخش ۴: عملکرد واقعی (Backend)
+═══════════════════════════════════════════════ */
+let backendUrl = '';
+let isConnected = false;
+let ws = null;
+let historyData = [];
+let statusInterval = null;
+let pingInterval = null;
+
+const el = {
+  statusBadge: document.getElementById('statusBadge'),
+  statusDot: document.querySelector('.status-badge .dot'),
+  statusText: document.getElementById('statusText'),
+  hashrate: document.getElementById('hashrate'),
+  accepted: document.getElementById('accepted'),
+  rejected: document.getElementById('rejected'),
+  uptime: document.getElementById('uptime'),
+  threadsDisplay: document.getElementById('threadsDisplay'),
+  modeDisplay: document.getElementById('modeDisplay'),
+  walletDisplay: document.getElementById('walletDisplay'),
+  serverDisplay: document.getElementById('serverDisplay'),
+  portDisplay: document.getElementById('portDisplay'),
+  logContainer: document.getElementById('logContainer'),
+  statusMsg: document.getElementById('statusMsg'),
+  connectionStatus: document.getElementById('connectionStatus'),
+  liveStatus: document.getElementById('liveStatus'),
+  walletInput: document.getElementById('walletInput'),
+  serverInput: document.getElementById('serverInput'),
+  portInput: document.getElementById('portInput'),
+  backendUrlInput: document.getElementById('backendUrl')
+};
+
+/* ── اتصال ── */
+function connectBackend() {
+  const url = el.backendUrlInput.value.trim();
+  if (!url) return showStatus('❌ آدرس بک‌اند را وارد کنید', 'error');
+  backendUrl = url.replace(/\/+$/, '');
+  testConnection();
+}
+
+async function testConnection() {
+  showConnectionStatus('🔄 در حال تست اتصال...', 'info');
+  try {
+    const res = await fetch(`${backendUrl}/api/health`, { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      isConnected = true;
+      showConnectionStatus('✅ اتصال برقرار شد', 'success');
+      el.liveStatus.textContent = '🟢 متصل';
+      connectWebSocket();
+      refreshAll();
+      if (statusInterval) clearInterval(statusInterval);
+      statusInterval = setInterval(() => {
+        fetchStatus();
+        fetchSystemStats();
+      }, 3000);
+    } else {
+      showConnectionStatus('❌ پاسخ ناموفق', 'error');
+    }
+  } catch(e) {
+    showConnectionStatus(`❌ ${e.message}`, 'error');
+  }
+}
+
+/* ── WebSocket ── */
+function connectWebSocket() {
+  if (ws && ws.readyState === WebSocket.OPEN) return;
+  if (ws && ws.readyState === WebSocket.CONNECTING) return;
+  try {
+    const wsProtocol = backendUrl.startsWith('https') ? 'wss' : 'ws';
+    const wsUrl = backendUrl.replace(/^https?:\/\//, '');
+    ws = new WebSocket(`${wsProtocol}://${wsUrl}/ws`);
+    ws.onopen = function() {
+      if (pingInterval) clearInterval(pingInterval);
+      pingInterval = setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) try { ws.send("ping"); } catch(e) {}
+      }, 30000);
     };
-  }
+    ws.onmessage = function(event) {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'ping') { try { ws.send("pong"); } catch(e) {} return; }
+        if (data.type === 'log') addLog(data.time, data.message, data.level);
+        else if (data.type === 'status') updateMetrics(data.data);
+      } catch(e) {}
+    };
+    ws.onclose = function() {
+      if (pingInterval) clearInterval(pingInterval);
+      setTimeout(() => { if (isConnected) connectWebSocket(); }, 5000);
+    };
+    ws.onerror = function() {};
+  } catch(e) {}
+}
 
-  let _chart;
-  function initChart() {
-    const c = chartColors();
-    const ctx = document.getElementById('hashrateChart').getContext('2d');
-    _chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'H/s',
-          data: [],
-          borderColor: c.line,
-          backgroundColor: c.fill,
-          borderWidth: 2,
-          fill: true,
-          tension: .45,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: c.line,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'easeInOutQuart' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#0f1d3a',
-            titleColor: '#94acd4',
-            bodyColor: '#60a5fa',
-            borderColor: 'rgba(59,130,246,.25)',
-            borderWidth: 1,
-            padding: 10,
-            displayColors: false,
-            callbacks: { label: ctx => ctx.parsed.y + ' H/s' }
-          }
-        },
-        scales: {
-          x: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 10 } } },
-          y: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 10 } }, beginAtZero: true }
-        }
-      }
+/* ── لاگ ── */
+function addLog(time, msg, level = 'default') {
+  const container = el.logContainer;
+  const empty = container.querySelector('.log-empty');
+  if (empty) empty.remove();
+  const entry = document.createElement('div');
+  entry.className = `log-line ${level}`;
+  entry.innerHTML = `<span class="log-ts">[${time}]</span><span class="log-msg">${msg}</span>`;
+  container.appendChild(entry);
+  container.scrollTop = container.scrollHeight;
+  while (container.children.length > 500) container.removeChild(container.firstChild);
+}
+function clearLogs() {
+  el.logContainer.innerHTML = '<div class="log-empty">لاگ‌ها پاک شدند.</div>';
+}
+
+/* ── متریک‌ها ── */
+function updateMetrics(data) {
+  if (data.hashrate !== undefined) {
+    el.hashrate.textContent = data.hashrate.toFixed(0);
+    updateChart(data.hashrate);
+  }
+  if (data.accepted !== undefined) el.accepted.textContent = data.accepted;
+  if (data.rejected !== undefined) el.rejected.textContent = data.rejected;
+  if (data.uptime !== undefined) el.uptime.textContent = formatUptime(data.uptime);
+  if (data.wallet) el.walletDisplay.textContent = data.wallet;
+  if (data.server) el.serverDisplay.textContent = data.server;
+  if (data.port) el.portDisplay.textContent = data.port;
+  if (data.threads) el.threadsDisplay.textContent = data.threads;
+  if (data.mode) el.modeDisplay.textContent = data.mode;
+  const badge = el.statusBadge, dot = el.statusDot, text = el.statusText;
+  if (data.running && data.connected) {
+    badge.className = 'status-badge online'; dot.className = 'dot'; text.textContent = '⚡ فعال';
+    el.liveStatus.textContent = '⚡ در حال استخراج';
+  } else if (data.running) {
+    badge.className = 'status-badge connecting'; dot.className = 'dot'; text.textContent = '🔄 اتصال...';
+    el.liveStatus.textContent = '🔄 در حال راه‌اندازی';
+  } else {
+    badge.className = 'status-badge offline'; dot.className = 'dot'; text.textContent = '⏹ غیرفعال';
+    el.liveStatus.textContent = '⏹ غیرفعال';
+  }
+}
+
+function formatUptime(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return (h ? h + 'h ' : '') + (m ? m + 'm ' : '') + sec + 's';
+}
+
+/* ── نمودار ── */
+function updateChart(val) {
+  if (!_chart) return;
+  const now = new Date().toLocaleTimeString('fa-IR');
+  historyData.push({ time: now, value: val });
+  if (historyData.length > 100) historyData.shift();
+  _chart.data.labels = historyData.map(d => d.time);
+  _chart.data.datasets[0].data = historyData.map(d => d.value);
+  _chart.update('none');
+}
+
+/* ── API ── */
+async function startMiner() {
+  if (!isConnected) return showStatus('❌ ابتدا به بک‌اند متصل شوید', 'error');
+  const wallet = el.walletInput.value.trim(), server = el.serverInput.value.trim(), port = parseInt(el.portInput.value);
+  if (!wallet || wallet.length < 10) return showStatus('❌ کیف پول نامعتبر', 'error');
+  if (!server) return showStatus('❌ استخر را وارد کنید', 'error');
+  if (isNaN(port) || port < 1 || port > 65535) return showStatus('❌ پورت نامعتبر', 'error');
+  showStatus('⚡ در حال راه‌اندازی...', 'info');
+  try {
+    const res = await fetch(`${backendUrl}/api/start`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, server, port })
     });
-    window._chart = _chart;
+    const data = await res.json();
+    if (res.ok) {
+      showStatus('⚡ ' + data.message, 'success');
+      addLog('success', 'ماینر با موفقیت راه‌اندازی شد');
+    } else {
+      showStatus('❌ ' + data.detail, 'error');
+      addLog('error', 'خطا: ' + data.detail);
+    }
+  } catch(e) {
+    showStatus('❌ خطا: ' + e.message, 'error');
+    addLog('error', 'خطا در ارتباط: ' + e.message);
   }
+  setTimeout(fetchStatus, 1000);
+}
 
-  function updateChartColors() {
-    const c = chartColors();
-    _chart.data.datasets[0].borderColor = c.line;
-    _chart.data.datasets[0].backgroundColor = c.fill;
-    _chart.options.scales.x.grid.color = c.grid;
-    _chart.options.scales.x.ticks.color = c.text;
-    _chart.options.scales.y.grid.color = c.grid;
-    _chart.options.scales.y.ticks.color = c.text;
-    _chart.update('none');
+async function stopMiner() {
+  if (!isConnected) return showStatus('❌ ابتدا به بک‌اند متصل شوید', 'error');
+  showStatus('⏹️ در حال توقف...', 'info');
+  try {
+    const res = await fetch(`${backendUrl}/api/stop`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      showStatus('✅ ' + data.message, 'success');
+      addLog('warning', 'ماینر متوقف شد');
+    } else {
+      showStatus('❌ ' + data.detail, 'error');
+    }
+  } catch(e) {
+    showStatus('❌ خطا: ' + e.message, 'error');
   }
+  setTimeout(fetchStatus, 1000);
+}
 
-  document.addEventListener('DOMContentLoaded', initChart);
+async function fetchStatus() {
+  if (!isConnected) return;
+  try {
+    const res = await fetch(`${backendUrl}/api/status`);
+    if (res.ok) {
+      const data = await res.json();
+      updateMetrics(data);
+    }
+  } catch(e) {}
+}
 
-  /* ── Stubs (replace with real script.js logic) ── */
-  function connectBackend() {
-    const url = document.getElementById('backendUrl').value;
-    document.getElementById('connectionStatus').textContent = 'در حال اتصال به ' + url + '…';
-    setBadge('connecting', 'در حال اتصال');
-  }
-  function startMiner() {
-    document.getElementById('statusMsg').textContent = '⚡ ماینر در حال راه‌اندازی…';
-    document.getElementById('walletDisplay').textContent = document.getElementById('walletInput').value.slice(0,12) + '…';
-    document.getElementById('serverDisplay').textContent = document.getElementById('serverInput').value;
-    document.getElementById('portDisplay').textContent   = document.getElementById('portInput').value;
-    setBadge('online', 'فعال');
-  }
-  function stopMiner() {
-    document.getElementById('statusMsg').textContent = '⏹ ماینر متوقف شد.';
-    setBadge('offline', 'غیرفعال');
-  }
-  function refreshAll() {
-    addLog('info', 'بروزرسانی دستی…');
-  }
-  function clearLogs() {
-    document.getElementById('logContainer').innerHTML = '<div class="log-empty">لاگ‌ها پاک شدند.</div>';
-  }
-  function setBadge(cls, txt) {
-    const b = document.getElementById('statusBadge');
-    b.className = 'status-badge ' + cls;
-    document.getElementById('statusText').textContent = txt;
-    document.getElementById('liveStatus').textContent = txt;
-  }
-  function addLog(type, msg) {
-    const box = document.getElementById('logContainer');
-    const empty = box.querySelector('.log-empty');
-    if (empty) empty.remove();
-    const now = new Date().toLocaleTimeString('fa-IR');
-    const div = document.createElement('div');
-    div.className = 'log-line ' + (type || 'default');
-    div.innerHTML = `<span class="log-ts">${now}</span><span class="log-msg">${msg}</span>`;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
+async function fetchLogs() {
+  if (!isConnected) return;
+  try {
+    const res = await fetch(`${backendUrl}/api/logs?limit=50`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.logs) data.logs.forEach(log => addLog(log.time, log.message, log.level));
+    }
+  } catch(e) {}
+}
 
-  /* ── Demo data ── */
-  setTimeout(() => {
-    addLog('info', 'سیستم آماده است');
-    addLog('success', 'اتصال به استخر برقرار شد');
-    addLog('warning', 'هش‌ریت پایین‌تر از حد مورد انتظار');
-    addLog('error', 'بلاک ردشده #2312');
-  }, 600);
+async function fetchSystemStats() {
+  if (!isConnected) return;
+  try {
+    const res = await fetch(`${backendUrl}/api/system-stats`);
+    if (res.ok) {
+      const data = await res.json();
+      const cpu = Math.round(data.cpu_percent);
+      const ram = Math.round(data.ram_percent);
+      // به‌روزرسانی اسلایدرها با داده‌های واقعی
+      document.getElementById('cpuSlider').value = cpu;
+      document.getElementById('ramSlider').value = ram;
+      document.getElementById('cpuSliderVal').textContent = cpu + '%';
+      document.getElementById('ramSliderVal').textContent = ram + '%';
+      // اعمال استرس
+      applyStress(cpu, ram);
+      // جزئیات RAM
+      document.getElementById('ramDetail').textContent = `${data.ram_used_mb} MB / ${data.ram_total_mb} MB`;
+    }
+  } catch(e) {}
+}
+
+function showStatus(msg, type = 'info') {
+  const el = el.statusMsg;
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
+}
+function showConnectionStatus(msg, type = 'info') {
+  const el = el.connectionStatus;
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = type === 'error' ? '#ef5350' : type === 'success' ? '#4caf50' : '#8a9bb8';
+}
+
+async function refreshAll() {
+  await fetchStatus();
+  await fetchLogs();
+  await fetchSystemStats();
+}
+
+/* ── مقداردهی ── */
+document.addEventListener('DOMContentLoaded', function() {
+  const savedBackend = localStorage.getItem('backendUrl');
+  if (savedBackend) {
+    el.backendUrlInput.value = savedBackend;
+    setTimeout(connectBackend, 500);
+  }
+  el.backendUrlInput?.addEventListener('change', function() {
+    localStorage.setItem('backendUrl', this.value);
+  });
+});
+
+/* ── expose to HTML ── */
+window.connectBackend = connectBackend;
+window.startMiner = startMiner;
+window.stopMiner = stopMiner;
+window.refreshAll = refreshAll;
+window.clearLogs = clearLogs;
+window.toggleTheme = toggleTheme;
+window.updateDemo = updateDemo;
+
+// چند لاگ دمو برای شروع
+setTimeout(() => addLog('info', 'سیستم آماده است'), 300);
+setTimeout(() => addLog('info', 'برای اتصال به بک‌اند، آدرس را وارد کنید'), 600);
 </script>
-<!-- link your real script.js here -->
-<!-- <script src="script.js"></script> -->
 </body>
 </html>
